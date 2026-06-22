@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: ed0e8faf35dee42459489c661f88f97b
+timeCreated: 1449640644
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/Enums/OscRemoteStatus.cs
+  uploadId: 742987

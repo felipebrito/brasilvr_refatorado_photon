@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 4c7c6f06192c94f048335d08e5690560
+timeCreated: 1451390411
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/06 UnicastBroadcastMulticast/UsingUnicastBroadcastMulticast.cs
+  uploadId: 742987

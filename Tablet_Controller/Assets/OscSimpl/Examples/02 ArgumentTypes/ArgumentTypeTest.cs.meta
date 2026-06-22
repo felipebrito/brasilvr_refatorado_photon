@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 0497c7618fa6446768ccafaeedea6ffc
+timeCreated: 1449219864
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/02 ArgumentTypes/ArgumentTypeTest.cs
+  uploadId: 742987

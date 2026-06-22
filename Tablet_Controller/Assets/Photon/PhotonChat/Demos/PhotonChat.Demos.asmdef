@@ -1,0 +1,18 @@
+{
+    "name": "PhotonChat.Demos",
+    "references": [
+        "PhotonChat",
+        "PhotonRealtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "ENABLE_PHOTON_CHAT_DEMOS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

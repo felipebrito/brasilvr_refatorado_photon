@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: fe24769ae7cae453aaa6f090b4d05646
+timeCreated: 1442599459
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/OscBundle.cs
+  uploadId: 742987

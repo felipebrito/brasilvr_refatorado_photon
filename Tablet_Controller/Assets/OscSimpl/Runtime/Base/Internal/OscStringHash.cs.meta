@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 806f7ec7cb43f46bba26a96cae1f1d4a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/Internal/OscStringHash.cs
+  uploadId: 742987

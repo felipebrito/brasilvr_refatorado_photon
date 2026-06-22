@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 35cc5ea72e8644484942c1b91706366b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/02 ArgumentTypes/ArgumentTypeTest.unity
+  uploadId: 742987

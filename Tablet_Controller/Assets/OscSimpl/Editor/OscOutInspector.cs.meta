@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 87650aa18c27f4bca9b5aa45459e64a4
+timeCreated: 1449456902
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Editor/OscOutInspector.cs
+  uploadId: 742987

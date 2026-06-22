@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 9379476bafe114667b0b31505c5c2c43
+timeCreated: 1451452967
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Xtras/RuntimeUI/OscInRuntimeUI.cs
+  uploadId: 742987

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 175a4c7f9679041d694d3e49a748692c
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/01 GettingStarted/GettingStarted.unity
+  uploadId: 742987

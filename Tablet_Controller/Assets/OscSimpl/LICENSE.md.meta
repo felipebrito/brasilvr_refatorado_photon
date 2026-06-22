@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 63fee2980bd77104183bfd0d298f430a
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/LICENSE.md
+  uploadId: 742987

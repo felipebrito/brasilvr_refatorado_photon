@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: b49d5d8396bd34d78bbedd88fdd5bb96
+timeCreated: 1451846843
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/08 Optimisations/Optimisations.cs
+  uploadId: 742987

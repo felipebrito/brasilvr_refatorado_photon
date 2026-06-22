@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8a1384d44e0bc4e1e84aa8c7e61022e5
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Packages/com.sixthsensor.osc-simpl/KNOWN_ISSUES.md
+  uploadId: 742987

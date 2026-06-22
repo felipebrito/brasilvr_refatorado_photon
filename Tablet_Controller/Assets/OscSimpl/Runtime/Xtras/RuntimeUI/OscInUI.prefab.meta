@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4f69f99837eaa4ce8a200255d9a41fd9
+timeCreated: 1451637980
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Xtras/RuntimeUI/OscInUI.prefab
+  uploadId: 742987
