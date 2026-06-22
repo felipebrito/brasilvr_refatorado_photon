@@ -107,7 +107,10 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     public void NotifyRoomCreated()
     {
         Debug.Log("Room created, trying to join.");
-        JoinOrCreateGameRoom();
+        if (!PhotonNetwork.InRoom)
+        {
+            JoinOrCreateGameRoom();
+        }
     }
 
     [PunRPC]

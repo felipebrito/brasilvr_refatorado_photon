@@ -78,6 +78,30 @@ public class ControllerScript : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("Sala criada ou entrada: " + PhotonNetwork.CurrentRoom.Name);
+
+        // O Controlador precisa registrar jogadores que já estavam na sala antes dele entrar
+        foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
+        {
+            if (!player.IsLocal)
+            {
+                if (!playerStatusMap.ContainsKey(player.ActorNumber))
+                {
+                    int playerIndex = GetAvailablePlayerIndex();
+                    if (playerIndex >= 0)
+                    {
+                        Debug.Log($"Jogador já na sala: {player.ActorNumber}, atribuído ao índice {playerIndex}");
+                        playerStatuses[playerIndex].SetUserON();
+                        playerStatusMap[player.ActorNumber] = playerIndex;
+                        UpdatePlayerStatusUI();
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Não há slots disponíveis para jogadores pré-existentes.");
+                    }
+                }
+            }
+        }
+
         photonView.RPC("ReceiveOnlineCheckCommand", RpcTarget.OthersBuffered);
         photonView.RPC("NotifyRoomCreated", RpcTarget.All);
     }
