@@ -67,6 +67,35 @@ public class ControllerScript : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
     }
 
+    void Update()
+    {
+        if (videoPlayers == null) return;
+        
+        for (int i = 0; i < videoPlayers.Count; i++)
+        {
+            var vp = videoPlayers[i];
+            if (vp != null && vp.texture != null)
+            {
+                // Tenta aplicar na RawImage da UI, se existir
+                if (playerStatuses != null && i < playerStatuses.Count && playerStatuses[i] != null && playerStatuses[i].videoPreview != null)
+                {
+                    var ri = playerStatuses[i].videoPreview.GetComponent<UnityEngine.UI.RawImage>();
+                    if (ri != null) ri.texture = vp.texture;
+                }
+
+                // Aplica a textura na esfera (MeshRenderer) dentro do componente
+                var meshRenderers = vp.GetComponentsInChildren<MeshRenderer>();
+                foreach (var mr in meshRenderers)
+                {
+                    if (mr != null && mr.material != null)
+                    {
+                        mr.material.mainTexture = vp.texture;
+                    }
+                }
+            }
+        }
+    }
+
     public override void OnConnectedToMaster()
     {
         Debug.Log("Conectado ao Photon Master.");
@@ -272,10 +301,26 @@ public class ControllerScript : MonoBehaviourPunCallbacks
             if (!TryGetVideoPlayer(playerIndex, out var videoPlayer) || !TryGetPlayerStatus(playerIndex, out var playerStatus))
                 return;
 
-            if (isPlaying && videoPlayer.videoUrl != url)
-                videoPlayer.Load(url, true);
+            string fileName = System.IO.Path.GetFileName(url);
+            string correctUrl = "Videos/" + fileName;
 
-            videoPlayer.time = currentTime;
+            if (isPlaying)
+            {
+                if (videoPlayer.videoUrl != correctUrl)
+                    videoPlayer.Load(correctUrl, true);
+                else if (!videoPlayer.isPlaying)
+                    videoPlayer.Play();
+            }
+            else
+            {
+                if (videoPlayer.isPlaying)
+                    videoPlayer.Pause();
+            }
+
+            if (!isPlaying || Mathf.Abs((float)(videoPlayer.time - currentTime)) > 1.5f)
+            {
+                videoPlayer.time = currentTime;
+            }
             
             isUpdatingSlider = true;
             if (playerStatus.timelineSlider != null)
