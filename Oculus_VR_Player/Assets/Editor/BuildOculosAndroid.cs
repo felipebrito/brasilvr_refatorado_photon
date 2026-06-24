@@ -24,7 +24,7 @@ public static class BuildOculosAndroid
         PlayerSettings.Android.keystoreName = string.Empty;
         PlayerSettings.Android.keyaliasName = string.Empty;
         PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.GameActivity;
-        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new UnityEngine.Rendering.GraphicsDeviceType[] { UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3 });
+        PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new UnityEngine.Rendering.GraphicsDeviceType[] { UnityEngine.Rendering.GraphicsDeviceType.Vulkan });
 
         if (!File.Exists(sceneFullPath))
         {

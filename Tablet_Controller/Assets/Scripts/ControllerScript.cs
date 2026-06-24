@@ -13,7 +13,7 @@ public class ControllerScript : MonoBehaviourPunCallbacks
     [Header("Photon")]
     [SerializeField] private string fixedRegion = "sa";
     [SerializeField] private string fixedAppVersion = "1";
-    [SerializeField] private string roomName = "GameRoom";
+    [SerializeField] private string roomName = "RiR-23";
 
     [SerializeField] private Transform uiListParent; // Transform para a lista na UI
     [SerializeField] private GameObject uiListItemPrefab; // Prefab do item na lista
@@ -43,6 +43,8 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        roomName = "RiR-23";
+
         if (PhotonNetwork.PhotonServerSettings == null)
         {
             Debug.LogErrorFormat(LOG_FORMAT, "PhotonServerSettings não encontrado.");
@@ -65,6 +67,8 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
         // Conecta ao Photon e tenta entrar ou criar a sala
         PhotonNetwork.ConnectUsingSettings();
+
+        Application.runInBackground = true;
     }
 
     void Update()
@@ -581,5 +585,20 @@ public class ControllerScript : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReceiveMessage(int targetUserID, string message)
     {
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Debug.LogWarning("Tablet lost connection to Photon. Reconnecting... Cause: " + cause);
+        StartCoroutine(ReconnectWithDelay());
+    }
+
+    private System.Collections.IEnumerator ReconnectWithDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
     }
 }

@@ -11,7 +11,7 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [Header("Photon")]
     [SerializeField] private string fixedRegion = "sa";
     [SerializeField] private string fixedAppVersion = "1";
-    [SerializeField] private string roomName = "GameRoom";
+    [SerializeField] private string roomName = "RiR-23";
 
     public int userID;
     public VRVideoPlayer vrVideoPlayer;
@@ -25,9 +25,25 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        roomName = "RiR-23";
+
+#if UNITY_ANDROID
+        if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
+        {
+            UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.ExternalStorageRead);
+        }
+#endif
         OVRManager.HMDMounted += OnHeadsetMounted;
         OVRManager.HMDUnmounted += OnHeadsetUnmounted;
         ConfigurePhotonAndConnect();
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Disconnect();
+        }
     }
 
     private void OnDestroy()
@@ -101,6 +117,19 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         Debug.Log($"Left room: {PhotonNetwork.CurrentRoom.Name}");
         TrySendStatus("offline");
         SceneManager.LoadScene(0);
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        // If another player leaves (likely the tablet master), we should stop the video
+        if (vrVideoPlayer != null)
+        {
+            vrVideoPlayer.Stop();
+        }
+        if (sphere != null)
+        {
+            sphere.SetActive(false);
+        }
     }
 
     [PunRPC]
@@ -227,7 +256,14 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     {
         if (targetUserID == userID || targetUserID == -1)
         {
-            vrVideoPlayer.Pause();
+            if (vrVideoPlayer != null)
+            {
+                vrVideoPlayer.Stop();
+            }
+            if (sphere != null)
+            {
+                sphere.SetActive(false);
+            }
         }
     }
 
@@ -237,41 +273,41 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         Debug.Log("Command received: " + videoUrl);
         if (targetUserID == userID || targetUserID == -1)
         {
-            string resolvedUrl = videoUrl;
+            string fileName = System.IO.Path.GetFileName(videoUrl);
+            
+            // Map common names to _PT versions
+            if (fileName.Contains("Amazonia")) fileName = "Amazonia_PT.mp4";
+            else if (fileName.Contains("Lencois")) fileName = "Lencois_PT.mp4";
+            else if (fileName.Contains("Noronha")) fileName = "Noronha_PT.mp4";
+            else if (fileName.Contains("Pantanal")) fileName = "Pantanal_PT.mp4";
+            else if (fileName.Contains("Rio")) fileName = "Rio_PT.mp4";
 
-            // 1. Check in Application.persistentDataPath (e.g. Android/data/com.vortexplay.final_vr_evento_oculos/files/Videos/...)
-            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, videoUrl);
-            // 2. Check in /sdcard/ (e.g. /sdcard/Videos/...)
-            string sdcardPath = System.IO.Path.Combine("/sdcard", videoUrl);
-            // 3. Check in emulated storage root /storage/emulated/0/ (e.g. /storage/emulated/0/Videos/...)
-            string emulatedPath = System.IO.Path.Combine("/storage/emulated/0", videoUrl);
+            string resolvedUrl = fileName;
 
-            if (System.IO.File.Exists(persistentPath))
+            string downloadPath = System.IO.Path.Combine("/sdcard/Download", fileName);
+            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, fileName);
+
+            if (System.IO.File.Exists(downloadPath))
+            {
+                Debug.Log("Loading video from Downloads path: " + downloadPath);
+                vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
+                resolvedUrl = "file://" + downloadPath;
+            }
+            else if (System.IO.File.Exists(persistentPath))
             {
                 Debug.Log("Loading video from persistent path: " + persistentPath);
                 vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
                 resolvedUrl = "file://" + persistentPath;
             }
-            else if (System.IO.File.Exists(sdcardPath))
-            {
-                Debug.Log("Loading video from sdcard path: " + sdcardPath);
-                vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
-                resolvedUrl = "file://" + sdcardPath;
-            }
-            else if (System.IO.File.Exists(emulatedPath))
-            {
-                Debug.Log("Loading video from emulated storage path: " + emulatedPath);
-                vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
-                resolvedUrl = "file://" + emulatedPath;
-            }
             else
             {
-                Debug.Log("Loading video from default StreamingAssets source: " + videoUrl);
+                Debug.Log("Loading video from default StreamingAssets source: " + fileName);
                 vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.FROM_STREAMING_ASSETS);
-                resolvedUrl = videoUrl;
+                resolvedUrl = fileName;
             }
 
             vrVideoPlayer.Load(resolvedUrl, true);
+            if (sphere != null) sphere.SetActive(true);
         }
     }
 

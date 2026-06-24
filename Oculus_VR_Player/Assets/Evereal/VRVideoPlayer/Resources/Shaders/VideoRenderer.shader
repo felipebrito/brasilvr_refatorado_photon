@@ -78,9 +78,8 @@ Shader "VRVideoPlayer/VideoRenderer"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                // Make sure to apply _StereoMode effects on this vertex's
-                // texture coordinate before passing on to the fragment.
-                o.texcoord = TRANSFORM_TEX(ApplyVideoStereoModeTexCoord(v.texcoord), _MainTex);
+                // Apply tiling/offset first
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 // Set video flip x
                 if (_FlipX == 1)
                 {
@@ -99,7 +98,11 @@ Shader "VRVideoPlayer/VideoRenderer"
             {
                 UNITY_SETUP_INSTANCE_ID(i);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-                fixed4 col = tex2D(_MainTex, i.texcoord);
+                
+                // Apply stereo mode after flips, so eyes aren't swapped
+                float2 uv = ApplyVideoStereoModeTexCoord(i.texcoord);
+                
+                fixed4 col = tex2D(_MainTex, uv);
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 UNITY_OPAQUE_ALPHA(col.a);
                 return col;
