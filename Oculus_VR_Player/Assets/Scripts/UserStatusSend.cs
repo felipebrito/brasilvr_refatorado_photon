@@ -5,6 +5,7 @@ using Evereal.VRVideoPlayer;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Photon.Realtime;
+using UnityEngine.Android;
 
 public class UserStatusSend : MonoBehaviourPunCallbacks
 {
