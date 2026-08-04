@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine.UI;
+using ExitGames.Client.Photon;
 
 public class ControllerScript : MonoBehaviourPunCallbacks
 {
@@ -83,8 +84,23 @@ public class ControllerScript : MonoBehaviourPunCallbacks
                 // Tenta aplicar na RawImage da UI, se existir
                 if (playerStatuses != null && i < playerStatuses.Count && playerStatuses[i] != null && playerStatuses[i].videoPreview != null)
                 {
-                    var ri = playerStatuses[i].videoPreview.GetComponent<UnityEngine.UI.RawImage>();
-                    if (ri != null) ri.texture = vp.texture;
+                    var ri = playerStatuses[i].videoPreview.GetComponentInChildren<UnityEngine.UI.RawImage>();
+                    if (ri != null) 
+                    {
+                        if (ri.texture != vp.texture)
+                        {
+                            Debug.Log($"Assigning texture for player {i}. vp.texture={vp.texture.name}");
+                            ri.texture = vp.texture;
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Player {i} videoPreview has no RawImage even in its children!");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"Player {i} playerStatus or videoPreview is null!");
                 }
 
                 // Aplica a textura na esfera (MeshRenderer) dentro do componente
@@ -96,6 +112,10 @@ public class ControllerScript : MonoBehaviourPunCallbacks
                         mr.material.mainTexture = vp.texture;
                     }
                 }
+            }
+            else if (vp != null && vp.isPlaying)
+            {
+                Debug.Log($"Player {i} is playing but texture is null!");
             }
         }
     }
@@ -112,25 +132,17 @@ public class ControllerScript : MonoBehaviourPunCallbacks
     {
         Debug.Log("Sala criada ou entrada: " + PhotonNetwork.CurrentRoom.Name);
 
-        // O Controlador precisa registrar jogadores que já estavam na sala antes dele entrar
         foreach (Player player in PhotonNetwork.CurrentRoom.Players.Values)
         {
-            if (!player.IsLocal)
+            if (!player.IsLocal && !playerStatusMap.ContainsKey(player.ActorNumber))
             {
-                if (!playerStatusMap.ContainsKey(player.ActorNumber))
+                if (TryAssignSlotFromProperties(player))
                 {
-                    int playerIndex = GetAvailablePlayerIndex();
-                    if (playerIndex >= 0)
-                    {
-                        Debug.Log($"Jogador já na sala: {player.ActorNumber}, atribuído ao índice {playerIndex}");
-                        playerStatuses[playerIndex].SetUserON();
-                        playerStatusMap[player.ActorNumber] = playerIndex;
-                        UpdatePlayerStatusUI();
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Não há slots disponíveis para jogadores pré-existentes.");
-                    }
+                    continue;
+                }
+                else
+                {
+                    Debug.LogWarning($"Jogador pré-existente {player.ActorNumber} ignorado por não ter SlotIndex definido.");
                 }
             }
         }
@@ -139,34 +151,94 @@ public class ControllerScript : MonoBehaviourPunCallbacks
         photonView.RPC("NotifyRoomCreated", RpcTarget.All);
     }
 
-    private int GetAvailablePlayerIndex()
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
-        for (int i = 0; i < playerStatuses.Count; i++)
+        if (!changedProps.ContainsKey("SlotIndex"))
+            return;
+
+        if (playerStatusMap.TryGetValue(targetPlayer.ActorNumber, out int currentSlot))
         {
-            if (playerStatuses[i] != null && playerStatuses[i].conected != null && !playerStatuses[i].conected.isOn)
+            int newSlot = (int)targetPlayer.CustomProperties["SlotIndex"];
+            if (newSlot < 0 || newSlot >= playerStatuses.Count || currentSlot == newSlot)
+                return;
+
+            Debug.Log($"Player {targetPlayer.ActorNumber}: slot {currentSlot} -> {newSlot}");
+
+            playerStatuses[currentSlot].SetUserOFF();
+            playerStatusMap.Remove(targetPlayer.ActorNumber);
+
+            int existingActor = -1;
+            foreach (var kvp in playerStatusMap)
             {
-                return i;
+                if (kvp.Value == newSlot)
+                {
+                    existingActor = kvp.Key;
+                    break;
+                }
             }
-        }
-        return -1;
-    }
+            if (existingActor >= 0)
+            {
+                playerStatuses[newSlot].SetUserOFF();
+                playerStatusMap.Remove(existingActor);
+            }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        // O controlador não se adiciona à própria lista
-        if (newPlayer.IsLocal) return;
-
-        int playerIndex = GetAvailablePlayerIndex();
-        if (playerIndex >= 0)
-        {
-            Debug.Log($"Jogador entrou na sala: {newPlayer.ActorNumber}, atribuído ao índice {playerIndex}");
-            playerStatuses[playerIndex].SetUserON();
-            playerStatusMap[newPlayer.ActorNumber] = playerIndex;
+            playerStatuses[newSlot].SetUserON();
+            playerStatusMap[targetPlayer.ActorNumber] = newSlot;
             UpdatePlayerStatusUI();
         }
         else
         {
-            Debug.LogWarning("Não há slots disponíveis para novos jogadores.");
+            TryAssignSlotFromProperties(targetPlayer);
+        }
+    }
+
+
+
+    private bool TryAssignSlotFromProperties(Player player)
+    {
+        if (!player.CustomProperties.TryGetValue("SlotIndex", out object slotObj))
+            return false;
+
+        int slotIndex = (int)slotObj;
+
+        if (slotIndex < 0 || slotIndex >= playerStatuses.Count)
+            return false;
+
+        int existingActor = -1;
+        foreach (var kvp in playerStatusMap)
+        {
+            if (kvp.Value == slotIndex)
+            {
+                existingActor = kvp.Key;
+                break;
+            }
+        }
+
+        if (existingActor >= 0)
+        {
+            Debug.Log($"Slot {slotIndex} ocupado por Actor {existingActor}. Substituindo por {player.ActorNumber}.");
+            playerStatuses[slotIndex].SetUserOFF();
+            playerStatusMap.Remove(existingActor);
+        }
+
+        Debug.Log($"Jogador {player.ActorNumber} alocado no slot fixo {slotIndex}.");
+        playerStatuses[slotIndex].SetUserON();
+        playerStatusMap[player.ActorNumber] = slotIndex;
+        UpdatePlayerStatusUI();
+        return true;
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (newPlayer.IsLocal) return;
+
+        if (TryAssignSlotFromProperties(newPlayer))
+        {
+            return;
+        }
+        else
+        {
+            Debug.LogWarning($"Jogador {newPlayer.ActorNumber} ignorado por não ter SlotIndex definido.");
         }
     }
 
@@ -274,6 +346,21 @@ public class ControllerScript : MonoBehaviourPunCallbacks
         {
             photonView.RPC("ReceivePlayCommand", RpcTarget.All, selectedPlayerID);
         }
+
+        int mappedPlayerIndex = -1;
+        if (selectedPlayerID >= 0) playerStatusMap.TryGetValue(selectedPlayerID + 1, out mappedPlayerIndex);
+
+        // Retomar o vídeo localmente no Tablet
+        for (int i = 0; i < playerStatuses.Count; i++)
+        {
+            if (playerStatuses[i] != null && (sendToAll || i == mappedPlayerIndex))
+            {
+                if (i < videoPlayers.Count && videoPlayers[i] != null)
+                {
+                    videoPlayers[i].Play();
+                }
+            }
+        }
     }
 
     public void SendPauseCommand()
@@ -285,6 +372,52 @@ public class ControllerScript : MonoBehaviourPunCallbacks
         else if (selectedPlayerID >= 0)
         {
             photonView.RPC("ReceivePauseCommand", RpcTarget.All, selectedPlayerID);
+        }
+
+        int mappedPlayerIndex = -1;
+        if (selectedPlayerID >= 0) playerStatusMap.TryGetValue(selectedPlayerID + 1, out mappedPlayerIndex);
+
+        // Pausar o vídeo localmente no Tablet
+        for (int i = 0; i < playerStatuses.Count; i++)
+        {
+            if (playerStatuses[i] != null && (sendToAll || i == mappedPlayerIndex))
+            {
+                if (i < videoPlayers.Count && videoPlayers[i] != null)
+                {
+                    videoPlayers[i].Pause();
+                }
+            }
+        }
+    }
+
+    public void SendStopCommand()
+    {
+        if (sendToAll)
+        {
+            photonView.RPC("ReceiveStopCommand", RpcTarget.All, -1);
+        }
+        else if (selectedPlayerID >= 0)
+        {
+            photonView.RPC("ReceiveStopCommand", RpcTarget.All, selectedPlayerID);
+        }
+
+        int mappedPlayerIndex = -1;
+        if (selectedPlayerID >= 0) playerStatusMap.TryGetValue(selectedPlayerID + 1, out mappedPlayerIndex);
+
+        // Parar o vídeo localmente e esconder a miniatura no Tablet
+        for (int i = 0; i < playerStatuses.Count; i++)
+        {
+            if (playerStatuses[i] != null && (sendToAll || i == mappedPlayerIndex))
+            {
+                if (i < videoPlayers.Count && videoPlayers[i] != null)
+                {
+                    videoPlayers[i].Stop();
+                }
+                if (playerStatuses[i].videoPreview != null)
+                {
+                    playerStatuses[i].videoPreview.SetActive(false);
+                }
+            }
         }
     }
 
@@ -383,27 +516,47 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     public void SendSelectVideoCommand(string videoUrl)
     {
+        string localPreviewUrl = videoUrl;
+
+        // A interface ainda manda os nomes longos, mas agora nossos 
+        // arquivos locais minúsculos têm o mesmo nome do óculos (_PT).
+        if (videoUrl.Contains("Noronha")) localPreviewUrl = "Videos/Noronha_PT.mp4";
+        else if (videoUrl.Contains("Lencois")) localPreviewUrl = "Videos/Lencois_PT.mp4";
+        else if (videoUrl.Contains("Pantanal")) localPreviewUrl = "Videos/Pantanal_PT.mp4";
+        else if (videoUrl.Contains("Rio")) localPreviewUrl = "Videos/Rio_PT.mp4";
+        else if (videoUrl.Contains("Amazonia")) localPreviewUrl = "Videos/Amazonia_PT.mp4";
+
         if (sendToAll)
         {
             photonView.RPC("ReceiveSelectVideoCommand", RpcTarget.All, -1, videoUrl);
             foreach (var videoPlayer in videoPlayers)
             {
                 if (videoPlayer != null)
-                    videoPlayer.Load(videoUrl, true);
+                    videoPlayer.Load(localPreviewUrl, true);
             }
         }
         else if (selectedPlayerID >= 0)
         {
             int actorNumber = selectedPlayerID + 1;
+            
+            // Envia o RPC para o óculos com o nome longo (o óculos faz a própria tradução local)
+            photonView.RPC("ReceiveSelectVideoCommand", RpcTarget.All, selectedPlayerID, videoUrl);
+
             if (playerStatusMap.TryGetValue(actorNumber, out int playerIndex))
             {
-                if (!TryGetVideoPlayer(playerIndex, out var videoPlayer) || !TryGetPlayerStatus(playerIndex, out var playerStatus))
-                    return;
-
-                videoPlayer.Load(videoUrl, true);
-                if (playerStatus.videoPreview != null) playerStatus.videoPreview.SetActive(true);
-                if (playerStatus.timelineSlider != null) playerStatus.timelineSlider.maxValue = (float)videoPlayer.length;
-                photonView.RPC("ReceiveSelectVideoCommand", RpcTarget.All, selectedPlayerID, videoUrl);
+                if (TryGetVideoPlayer(playerIndex, out var videoPlayer) && TryGetPlayerStatus(playerIndex, out var playerStatus))
+                {
+                    try {
+                        if (videoPlayer != null)
+                        {
+                            videoPlayer.Load(localPreviewUrl, true);
+                            if (playerStatus.timelineSlider != null) playerStatus.timelineSlider.maxValue = (float)videoPlayer.length;
+                        }
+                        if (playerStatus.videoPreview != null) playerStatus.videoPreview.SetActive(true);
+                    } catch (System.Exception e) {
+                        Debug.LogWarning("Error loading local preview: " + e.Message);
+                    }
+                }
             }
         }
     }

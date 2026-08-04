@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using Photon.Realtime;
 using UnityEngine.Android;
+using ExitGames.Client.Photon;
 
 public class UserStatusSend : MonoBehaviourPunCallbacks
 {
@@ -14,7 +15,15 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [SerializeField] private string fixedAppVersion = "1";
     [SerializeField] private string roomName = "RiR-23";
 
-    public int userID;
+    public int userID
+    {
+        get
+        {
+            if (PhotonNetwork.LocalPlayer != null)
+                return PhotonNetwork.LocalPlayer.ActorNumber - 1;
+            return -1;
+        }
+    }
     public VRVideoPlayer vrVideoPlayer;
     public VideoPlayerCtrl videoPlayerCtrl;
     public TextMeshPro Mensagem;
@@ -101,7 +110,12 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
-        userID = PhotonNetwork.LocalPlayer.ActorNumber - 1;
+
+        int slotIndex = 3; // FORCANDO PARA PLAYER 4 (Slot 3)
+        PhotonNetwork.LocalPlayer.SetCustomProperties(
+            new ExitGames.Client.Photon.Hashtable { { "SlotIndex", slotIndex } }
+        );
+
         TrySendStatus("online");
 
         if (reconnectRoutine != null)
@@ -109,7 +123,7 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
             StopCoroutine(reconnectRoutine);
             reconnectRoutine = null;
         }
-        
+
         StartCoroutine(SendVideoDataRoutine());
     }
 
@@ -254,6 +268,18 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
     [PunRPC]
     public void ReceivePauseCommand(int targetUserID)
+    {
+        if (targetUserID == userID || targetUserID == -1)
+        {
+            if (vrVideoPlayer != null)
+            {
+                vrVideoPlayer.Pause();
+            }
+        }
+    }
+
+    [PunRPC]
+    public void ReceiveStopCommand(int targetUserID)
     {
         if (targetUserID == userID || targetUserID == -1)
         {
