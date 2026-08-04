@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: b48c37ac727884abca72368f9f923093
+timeCreated: 1448800545
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/Internal/OscMapping.cs
+  uploadId: 742987

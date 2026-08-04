@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ea97f90578e7b41f6a8e8e3772ba4163
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/07 Blobs/Blobs.unity
+  uploadId: 742987

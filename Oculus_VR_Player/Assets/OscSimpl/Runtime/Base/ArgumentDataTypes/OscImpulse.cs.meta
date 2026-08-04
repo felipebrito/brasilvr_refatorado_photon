@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 744f21106a3904446aa4b02d01dc4fb1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/ArgumentDataTypes/OscImpulse.cs
+  uploadId: 742987

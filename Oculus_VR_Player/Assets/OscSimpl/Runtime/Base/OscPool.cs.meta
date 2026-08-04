@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f3b6ee8c4ed5a477e90d2aacac88633e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/OscPool.cs
+  uploadId: 742987

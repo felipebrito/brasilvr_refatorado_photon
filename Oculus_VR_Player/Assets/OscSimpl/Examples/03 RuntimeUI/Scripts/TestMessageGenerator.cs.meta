@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 83c7699409df54f0aa74d88b513f04e2
+timeCreated: 1451638514
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/03 RuntimeUI/Scripts/TestMessageGenerator.cs
+  uploadId: 742987

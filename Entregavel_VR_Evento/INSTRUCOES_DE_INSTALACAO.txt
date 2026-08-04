@@ -1,0 +1,36 @@
+INSTRUÇÕES PARA O EVENTO - BRASIL VR
+====================================
+
+ARQUIVOS DE INSTALAÇÃO NESTA PASTA:
+1. BrasilVRController-tablet.apk (Para o Tablet Mestre)
+2. final_ VR_evento_oculos.apk (Para os 4 Óculos Oculus/Meta Quest)
+
+====================================
+PASSO 1: INSTALAÇÃO NOS ÓCULOS
+====================================
+1. Instale o arquivo "final_ VR_evento_oculos.apk" nos 4 óculos.
+2. Copie os seguintes 5 arquivos de vídeo DIRETAMENTE para a pasta "Downloads" de cada um dos óculos:
+   - Amazonia_PT.mp4
+   - Lencois_PT.mp4
+   - Noronha_PT.mp4
+   - Pantanal_PT.mp4
+   - Rio_PT.mp4
+   (A nomenclatura deve ser EXATAMENTE essa para que o app reconheça os vídeos em Português).
+
+====================================
+PASSO 2: AUTORIZAÇÃO (MUITO IMPORTANTE)
+====================================
+Na PRIMEIRA VEZ que você abrir o app dentro dos óculos, uma janela do sistema Android vai aparecer perguntando:
+"Permitir que o app acesse fotos e mídias do dispositivo?" (Ou mensagem parecida em inglês).
+
+- Você DEVE clicar em "Permitir" (Allow). 
+Se não clicar em Permitir, o aplicativo não conseguirá ler a pasta Downloads e os vídeos não vão carregar!
+
+====================================
+PASSO 3: INSTALAÇÃO E USO DO TABLET
+====================================
+1. Instale o "BrasilVRController-tablet.apk" no Tablet.
+2. Certifique-se de que o Tablet e todos os Óculos estejam conectados à INTERNET (na mesma rede ou redes diferentes, desde que tenham acesso à internet para se conectarem ao servidor do Photon).
+3. Abra o app nos Óculos. Em seguida, abra no Tablet.
+4. Pressione "Play" no vídeo desejado no Tablet. O comando será disparado e recebido simultaneamente por todos os óculos!
+5. Se a conexão cair ou você apertar o botão de "Stop/Parar", o vídeo fechará automaticamente nos óculos.

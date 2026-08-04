@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 392bbbcb7467d4875b2f74fee902fd49
+timeCreated: 1451846843
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/07 Blobs/UTF8StringBlob.cs
+  uploadId: 742987

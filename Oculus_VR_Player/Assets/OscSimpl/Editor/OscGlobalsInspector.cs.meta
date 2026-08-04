@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 76824054b82e45e4fb9a24e1bdcfe0c6
+timeCreated: 1448687272
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Editor/OscGlobalsInspector.cs
+  uploadId: 742987

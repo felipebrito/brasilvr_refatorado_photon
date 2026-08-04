@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b9c4df0c9043ee54fbff7816ccc58dd9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Examples/_ExampleAssets/OscSimplExampleLighting.lighting
+  uploadId: 742987

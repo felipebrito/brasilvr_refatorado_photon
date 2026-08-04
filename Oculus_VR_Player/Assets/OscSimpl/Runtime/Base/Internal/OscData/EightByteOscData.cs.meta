@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: cdcbc43a1e6ea451ca8284ab8b9ef471
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 53710
+  packageName: Osc Simpl
+  packageVersion: 2.3.12
+  assetPath: Assets/OscSimpl/Runtime/Base/Internal/OscData/EightByteOscData.cs
+  uploadId: 742987
