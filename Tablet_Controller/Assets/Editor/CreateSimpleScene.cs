@@ -18,7 +18,7 @@ public class CreateSimpleScene
         GameObject goCamera = new GameObject("Main Camera");
         Camera cam = goCamera.AddComponent<Camera>();
         cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = new Color(0.06f, 0.09f, 0.16f, 1f); // #0f172a Rich Dark Slate
+        cam.backgroundColor = new Color(0.06f, 0.09f, 0.16f, 1f); // #0f172a
         
         // EventSystem
         GameObject goEvent = new GameObject("EventSystem");
@@ -67,7 +67,7 @@ public class CreateSimpleScene
         leHeader.flexibleWidth = 1;
 
         Image imgHeaderFrame = goHeaderFrame.AddComponent<Image>();
-        imgHeaderFrame.color = new Color(0.22f, 0.45f, 0.85f, 0.6f); // Bright blue frame
+        imgHeaderFrame.color = new Color(0.22f, 0.45f, 0.85f, 0.6f);
 
         GameObject goHeader = new GameObject("Header");
         goHeader.transform.SetParent(goHeaderFrame.transform, false);
@@ -78,7 +78,7 @@ public class CreateSimpleScene
         rtHeader.offsetMax = new Vector2(-2, -2);
 
         Image imgHeader = goHeader.AddComponent<Image>();
-        imgHeader.color = new Color(0.12f, 0.18f, 0.30f, 0.98f); // Rich dark card
+        imgHeader.color = new Color(0.12f, 0.18f, 0.30f, 0.98f);
 
         GameObject goHeaderTxt = new GameObject("TitleText");
         goHeaderTxt.transform.SetParent(goHeader.transform, false);
@@ -116,17 +116,17 @@ public class CreateSimpleScene
             hlg.childForceExpandHeight = true;
             hlg.spacing = 12;
 
-            // -------- BADGE & CONTROLS CONTAINER (LEFT) --------
+            // -------- COLUMN 1: NARROWER BADGE & SESSION CONTROLS --------
             GameObject goBadgeFrame = new GameObject("BadgeFrame_" + (i + 1));
             goBadgeFrame.transform.SetParent(goRow.transform, false);
             LayoutElement leBadgeBox = goBadgeFrame.AddComponent<LayoutElement>();
-            leBadgeBox.minWidth = 340;
-            leBadgeBox.preferredWidth = 340;
+            leBadgeBox.minWidth = 210; // Narrower as requested!
+            leBadgeBox.preferredWidth = 210;
             leBadgeBox.flexibleWidth = 0;
             leBadgeBox.flexibleHeight = 1;
 
             Image imgBadgeFrame = goBadgeFrame.AddComponent<Image>();
-            imgBadgeFrame.color = new Color(0.20f, 0.40f, 0.70f, 0.7f); // Bright blue frame
+            imgBadgeFrame.color = new Color(0.20f, 0.40f, 0.70f, 0.7f);
 
             GameObject goBadgeBox = new GameObject("BadgeBox");
             goBadgeBox.transform.SetParent(goBadgeFrame.transform, false);
@@ -145,8 +145,8 @@ public class CreateSimpleScene
             hlgBadge.childControlHeight = true;
             hlgBadge.childForceExpandWidth = false;
             hlgBadge.childForceExpandHeight = true;
-            hlgBadge.spacing = 8;
-            hlgBadge.padding = new RectOffset(16, 12, 10, 10);
+            hlgBadge.spacing = 6;
+            hlgBadge.padding = new RectOffset(12, 10, 8, 8);
 
             // Left-aligned Text (Number 1, 2, 3, 4 + Status)
             GameObject goBadgeTxt = new GameObject("StatusText");
@@ -156,26 +156,42 @@ public class CreateSimpleScene
             leTxt.flexibleHeight = 1;
 
             Text txtBadge = goBadgeTxt.AddComponent<Text>();
-            txtBadge.text = $"<b><size=52>{i + 1}</size></b>   <color=#EF4444><b>○ OFF</b></color>";
+            txtBadge.text = $"<b><size=50>{i + 1}</size></b>   <color=#EF4444><b>○ OFF</b></color>";
             txtBadge.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtBadge.fontSize = 22;
+            txtBadge.fontSize = 20;
             txtBadge.color = Color.white;
             txtBadge.alignment = TextAnchor.MiddleLeft;
             txtBadge.supportRichText = true;
             txtBadge.lineSpacing = 1.15f;
             sc.playerStatusTexts[i] = txtBadge;
 
-            // Play/Pause Button (Vibrant Emerald)
+            // Session Controls Container (PLAY/PAUSE & STOP) - Starts inactive and only appears when playing!
+            GameObject goControls = new GameObject("SessionControls");
+            goControls.transform.SetParent(goBadgeBox.transform, false);
+            LayoutElement leControls = goControls.AddComponent<LayoutElement>();
+            leControls.minWidth = 90;
+            leControls.preferredWidth = 90;
+            leControls.flexibleWidth = 0;
+            leControls.flexibleHeight = 1;
+
+            HorizontalLayoutGroup hlgControls = goControls.AddComponent<HorizontalLayoutGroup>();
+            hlgControls.childControlWidth = true;
+            hlgControls.childControlHeight = true;
+            hlgControls.childForceExpandWidth = true;
+            hlgControls.childForceExpandHeight = true;
+            hlgControls.spacing = 4;
+            sc.playerControlContainers[i] = goControls;
+            goControls.SetActive(false); // Initially hidden!
+
+            // Play/Pause Button
             GameObject goPlayBtn = new GameObject("Btn_PlayPause");
-            goPlayBtn.transform.SetParent(goBadgeBox.transform, false);
+            goPlayBtn.transform.SetParent(goControls.transform, false);
             LayoutElement lePlay = goPlayBtn.AddComponent<LayoutElement>();
-            lePlay.minWidth = 60;
-            lePlay.preferredWidth = 60;
-            lePlay.flexibleWidth = 0;
+            lePlay.flexibleWidth = 1;
             lePlay.flexibleHeight = 1;
 
             Image imgPlay = goPlayBtn.AddComponent<Image>();
-            imgPlay.color = new Color(0.05f, 0.65f, 0.40f, 1f); // Vibrant Emerald
+            imgPlay.color = new Color(0.05f, 0.65f, 0.40f, 1f);
 
             Button btnPlay = goPlayBtn.AddComponent<Button>();
             ColorBlock cbPlay = btnPlay.colors;
@@ -195,7 +211,7 @@ public class CreateSimpleScene
             Text txtPlay = goPlayTxt.AddComponent<Text>();
             txtPlay.text = "▶";
             txtPlay.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtPlay.fontSize = 30;
+            txtPlay.fontSize = 26;
             txtPlay.fontStyle = FontStyle.Bold;
             txtPlay.color = Color.white;
             txtPlay.alignment = TextAnchor.MiddleCenter;
@@ -207,17 +223,15 @@ public class CreateSimpleScene
             proxyPlay.action = ButtonProxy.ActionType.TogglePlayPause;
             UnityEditor.Events.UnityEventTools.AddPersistentListener(btnPlay.onClick, proxyPlay.OnClick);
 
-            // Stop Button (Vibrant Ruby Red)
+            // Stop Button
             GameObject goStopBtn = new GameObject("Btn_Stop");
-            goStopBtn.transform.SetParent(goBadgeBox.transform, false);
+            goStopBtn.transform.SetParent(goControls.transform, false);
             LayoutElement leStop = goStopBtn.AddComponent<LayoutElement>();
-            leStop.minWidth = 60;
-            leStop.preferredWidth = 60;
-            leStop.flexibleWidth = 0;
+            leStop.flexibleWidth = 1;
             leStop.flexibleHeight = 1;
 
             Image imgStop = goStopBtn.AddComponent<Image>();
-            imgStop.color = new Color(0.85f, 0.18f, 0.22f, 1f); // Vibrant Red
+            imgStop.color = new Color(0.85f, 0.18f, 0.22f, 1f);
 
             Button btnStop = goStopBtn.AddComponent<Button>();
             ColorBlock cbStop = btnStop.colors;
@@ -237,7 +251,7 @@ public class CreateSimpleScene
             Text txtStop = goStopTxt.AddComponent<Text>();
             txtStop.text = "⏹";
             txtStop.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtStop.fontSize = 26;
+            txtStop.fontSize = 24;
             txtStop.fontStyle = FontStyle.Bold;
             txtStop.color = Color.white;
             txtStop.alignment = TextAnchor.MiddleCenter;
@@ -248,12 +262,11 @@ public class CreateSimpleScene
             proxyStop.action = ButtonProxy.ActionType.StopVideo;
             UnityEditor.Events.UnityEventTools.AddPersistentListener(btnStop.onClick, proxyStop.OnClick);
 
-            // -------- 5 VIDEO BUTTONS (VIBRANT ROYAL BLUE WITH ELECTRIC CYAN BORDER) --------
-            sc.playerButtonFills[i] = new SimpleController.RowFills();
+            // -------- 5 VIDEO BUTTONS WITH DYNAMIC PROGRESSIVE FILL --------
+            sc.playerRows[i] = new SimpleController.RowElements();
 
             for (int v = 0; v < videoTitles.Length; v++)
             {
-                // Vibrant Frame / Glowing Border
                 GameObject goBtnFrame = new GameObject("BtnFrame_" + v);
                 goBtnFrame.transform.SetParent(goRow.transform, false);
                 LayoutElement leBtn = goBtnFrame.AddComponent<LayoutElement>();
@@ -261,7 +274,8 @@ public class CreateSimpleScene
                 leBtn.flexibleHeight = 1;
 
                 Image imgFrame = goBtnFrame.AddComponent<Image>();
-                imgFrame.color = new Color(0.22f, 0.55f, 0.95f, 0.85f); // Electric Blue/Cyan Border
+                imgFrame.color = new Color(0.18f, 0.32f, 0.52f, 0.7f);
+                sc.playerRows[i].btnFrames[v] = imgFrame;
 
                 // Button Body
                 GameObject goBtn = new GameObject("Btn");
@@ -273,7 +287,8 @@ public class CreateSimpleScene
                 rtBtn.offsetMax = new Vector2(-3, -3);
 
                 Image btnBg = goBtn.AddComponent<Image>();
-                btnBg.color = new Color(0.12f, 0.22f, 0.44f, 1f); // Vibrant Royal Blue
+                btnBg.color = new Color(0.10f, 0.16f, 0.28f, 1f);
+                sc.playerRows[i].btnBackgrounds[v] = btnBg;
 
                 // Progressive Fill Image
                 GameObject goFill = new GameObject("ProgressFill");
@@ -290,20 +305,20 @@ public class CreateSimpleScene
                 imgFill.fillMethod = Image.FillMethod.Horizontal;
                 imgFill.fillOrigin = (int)Image.OriginHorizontal.Left;
                 imgFill.fillAmount = 0f;
-                imgFill.color = new Color(0.06f, 0.72f, 0.88f, 0.75f);
-                sc.playerButtonFills[i].fills[v] = imgFill;
+                imgFill.color = new Color(0.05f, 0.80f, 0.95f, 0.65f);
+                sc.playerRows[i].btnFills[v] = imgFill;
 
                 Button btn = goBtn.AddComponent<Button>();
                 ColorBlock cb = btn.colors;
-                cb.normalColor = new Color(0.12f, 0.22f, 0.44f, 1f);
-                cb.highlightedColor = new Color(0.18f, 0.35f, 0.70f, 1f);
-                cb.pressedColor = new Color(0.05f, 0.80f, 0.50f, 1f);
-                cb.selectedColor = new Color(0.15f, 0.28f, 0.55f, 1f);
+                cb.normalColor = Color.white;
+                cb.highlightedColor = new Color(1f, 1f, 1f, 0.9f);
+                cb.pressedColor = new Color(0.05f, 0.90f, 0.55f, 1f);
+                cb.selectedColor = Color.white;
                 cb.colorMultiplier = 1f;
                 cb.fadeDuration = 0.08f;
                 btn.colors = cb;
 
-                // Button Text
+                // Button Text (On Top of Fill)
                 GameObject goBtnTxt = new GameObject("Text");
                 goBtnTxt.transform.SetParent(goBtn.transform, false);
                 RectTransform rtBtnTxt = goBtnTxt.AddComponent<RectTransform>();
@@ -320,6 +335,7 @@ public class CreateSimpleScene
                 txtBtn.color = Color.white;
                 txtBtn.alignment = TextAnchor.MiddleCenter;
                 txtBtn.lineSpacing = 1.15f;
+                sc.playerRows[i].btnTexts[v] = txtBtn;
 
                 int slotIndex = i;
                 string targetUrl = videoUrls[v];
