@@ -44,6 +44,7 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
         roomName = "RiR-23";
 
         if (PhotonNetwork.PhotonServerSettings == null)
@@ -528,7 +529,10 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
         if (sendToAll)
         {
-            photonView.RPC("ReceiveSelectVideoCommand", RpcTarget.All, -1, videoUrl);
+            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+            props.Add("GlobalVideo", videoUrl);
+            props.Add("GlobalTimestamp", (float)PhotonNetwork.Time);
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
             foreach (var videoPlayer in videoPlayers)
             {
                 if (videoPlayer != null)
@@ -539,8 +543,10 @@ public class ControllerScript : MonoBehaviourPunCallbacks
         {
             int actorNumber = selectedPlayerID + 1;
             
-            // Envia o RPC para o óculos com o nome longo (o óculos faz a própria tradução local)
-            photonView.RPC("ReceiveSelectVideoCommand", RpcTarget.All, selectedPlayerID, videoUrl);
+            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+            props.Add("Video_" + selectedPlayerID, videoUrl);
+            props.Add("Time_" + selectedPlayerID, (float)PhotonNetwork.Time);
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
 
             if (playerStatusMap.TryGetValue(actorNumber, out int playerIndex))
             {

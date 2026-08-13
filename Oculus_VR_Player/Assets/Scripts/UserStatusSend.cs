@@ -36,13 +36,6 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     void Start()
     {
         roomName = "RiR-23";
-
-#if UNITY_ANDROID
-        if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
-        {
-            UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.ExternalStorageRead);
-        }
-#endif
         OVRManager.HMDMounted += OnHeadsetMounted;
         OVRManager.HMDUnmounted += OnHeadsetUnmounted;
         ConfigurePhotonAndConnect();
@@ -111,12 +104,15 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     {
         Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
 
-        int slotIndex = 3; // FORCANDO PARA PLAYER 4 (Slot 3)
+        int slotIndex = 2; // FORCANDO PARA PLAYER 3 (Slot 2)
         PhotonNetwork.LocalPlayer.SetCustomProperties(
             new ExitGames.Client.Photon.Hashtable { { "SlotIndex", slotIndex } }
         );
 
         TrySendStatus("online");
+
+        // Sync initial video state from room properties
+        StartCoroutine(DelayedCheckRoomProperties(PhotonNetwork.CurrentRoom.CustomProperties));
 
         if (reconnectRoutine != null)
         {
@@ -125,6 +121,46 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         }
 
         StartCoroutine(SendVideoDataRoutine());
+    }
+
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    {
+        CheckRoomPropertiesForVideo(propertiesThatChanged);
+    }
+
+    private string lastProcessedVideo = "";
+    private float lastProcessedTime = 0f;
+
+    private IEnumerator DelayedCheckRoomProperties(ExitGames.Client.Photon.Hashtable properties)
+    {
+        yield return new WaitForSeconds(1.5f);
+        CheckRoomPropertiesForVideo(properties);
+    }
+
+    private void CheckRoomPropertiesForVideo(ExitGames.Client.Photon.Hashtable properties)
+    {
+        int currentUserId = userID;
+        
+        string newVideoUrl = null;
+        float newTimestamp = 0f;
+
+        if (properties.ContainsKey("Video_" + currentUserId))
+        {
+            newVideoUrl = (string)properties["Video_" + currentUserId];
+            if (properties.ContainsKey("Time_" + currentUserId)) newTimestamp = (float)properties["Time_" + currentUserId];
+        }
+        else if (properties.ContainsKey("GlobalVideo"))
+        {
+            newVideoUrl = (string)properties["GlobalVideo"];
+            newTimestamp = (float)properties["GlobalTimestamp"];
+        }
+
+        if (newVideoUrl != null && (newVideoUrl != lastProcessedVideo || newTimestamp > lastProcessedTime))
+        {
+            lastProcessedVideo = newVideoUrl;
+            lastProcessedTime = newTimestamp;
+            ReceiveSelectVideoCommand(currentUserId, newVideoUrl);
+        }
     }
 
     public override void OnLeftRoom()
@@ -311,7 +347,7 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
             string resolvedUrl = fileName;
 
-            string downloadPath = System.IO.Path.Combine("/sdcard/Download", fileName);
+            string downloadPath = System.IO.Path.Combine("/storage/emulated/0/Download", fileName);
             string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, fileName);
 
             if (System.IO.File.Exists(downloadPath))

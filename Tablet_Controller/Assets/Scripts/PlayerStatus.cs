@@ -15,7 +15,7 @@ public class PlayerStatus : MonoBehaviour
     public TextMeshProUGUI videoCurrentTime;
     public TextMeshProUGUI videoTotalTime;
 
-    public Button button; // ativar ou desativar o bot„o do usu·rio
+    public Button button; // ativar ou desativar o bot√£o do usu√°rio
 
     public SwitchManager conected;
     public TextMeshProUGUI conectedText;
@@ -29,7 +29,7 @@ public class PlayerStatus : MonoBehaviour
     {
         desconectado.SetActive(true);
         contectado.SetActive(false);
-        button.interactable = false;
+        //button.interactable = false; // Liberado para pre-load
 
     }
 
@@ -54,7 +54,7 @@ public class PlayerStatus : MonoBehaviour
 
     public void SetUserOFF()
     {
-        //button.interactable = false;
+        ////button.interactable = false; // Liberado para pre-load
         contectado.SetActive(true);
         Animator anim = contectado.GetComponent<Animator>();
         anim.Play("Out");

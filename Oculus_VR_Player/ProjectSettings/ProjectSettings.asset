@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: VortexPlay
-  productName: BrasilVR-RiR
+  companyName: Aparato
+  productName: BrasilVR
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -143,9 +143,11 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.0.1
+  bundleVersion: 1
   preloadedAssets:
   - {fileID: 11400000, guid: b91782b2b8db94765999422ab02be8e1, type: 2}
+  - {fileID: -3455129522616895486, guid: c1e37fbd66383434394f2711c6b7b7a6, type: 2}
+  - {fileID: 11400000, guid: cb002345845b248428184c568fe82f4b, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -167,7 +169,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.vortexplay.final_vr_evento_oculos
+    Android: com.aparato.vr
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -258,7 +260,7 @@ PlayerSettings:
   clonedFromGUID: c0afd0d1d80e3634a9dac47e8a0426ea
   templatePackageId: com.unity.template.3d@8.1.1
   templateDefaultScene: Assets/Scenes/SampleScene.unity
-  useCustomMainManifest: 1
+  useCustomMainManifest: 0
   useCustomLauncherManifest: 0
   useCustomMainGradleTemplate: 0
   useCustomLauncherGradleManifest: 0

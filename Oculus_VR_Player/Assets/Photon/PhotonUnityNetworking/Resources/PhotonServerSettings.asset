@@ -52,6 +52,7 @@ MonoBehaviour:
   - NotifyRoomCreated
   - UpdateVideoData33
   - ReceiveOnlineCheckCommand
+  - ReceiveStopCommand
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

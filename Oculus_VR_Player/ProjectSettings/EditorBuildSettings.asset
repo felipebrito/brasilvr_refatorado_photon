@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Hand.unity
     guid: 5082439d27ad4de458543af1636eaae4
   m_configObjects:
-    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: da1b4717725fd5f4388677fc51d7455d, type: 2}
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: cb002345845b248428184c568fe82f4b, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 7b71bb706a1d84b0da51ad0e8bdf75c5, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 93ffe7ca55c6839479b7bc85b3a6ffae, type: 2}
   m_UseUCBPForAssetBundles: 0
