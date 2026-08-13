@@ -17,7 +17,7 @@ echo "=== Building Oculus ==="
 if [ $? -eq 0 ]; then
     echo "Oculus build successful. Installing..."
     adb -s 230YC01D8202J6 install -r "$DIR/Oculus_VR_Player/Builds/final_ VR_evento_oculos.apk"
-    adb -s 230YC01D8202J6 shell monkey -p com.vortexplay.final_vr_evento_oculos -c android.intent.category.LAUNCHER 1
+    adb -s 230YC01D8202J6 shell monkey -p com.brasilvr.online -c android.intent.category.LAUNCHER 1
 else
     echo "Oculus build failed. Check $DIR/build_oculus.log"
 fi

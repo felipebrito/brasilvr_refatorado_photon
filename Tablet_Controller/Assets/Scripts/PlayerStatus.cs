@@ -50,6 +50,10 @@ public class PlayerStatus : MonoBehaviour
         desconectado.SetActive(false);
         contectado.SetActive(true);
         conected.SetOn();
+
+        CanvasGroup cg = contectado.GetComponent<CanvasGroup>();
+        if (cg == null) cg = contectado.AddComponent<CanvasGroup>();
+        cg.blocksRaycasts = true;
     }
 
     public void SetUserOFF()
@@ -61,6 +65,10 @@ public class PlayerStatus : MonoBehaviour
         conected.SetOff();
         desconectado.SetActive(true);
         //contectado.SetActive(false);
+
+        CanvasGroup cg = contectado.GetComponent<CanvasGroup>();
+        if (cg == null) cg = contectado.AddComponent<CanvasGroup>();
+        cg.blocksRaycasts = false;
     }
 
     public void SetVideoTotalTime(string value)

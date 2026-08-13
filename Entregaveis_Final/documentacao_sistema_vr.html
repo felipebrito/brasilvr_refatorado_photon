@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrasilVR - Documentação e Fluxo do Sistema Multi-VR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card-bg: rgba(20, 27, 45, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.35);
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --code-bg: #070a12;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .badge-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.2));
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 40px var(--primary-glow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .card p, .card li {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 12px;
+        }
+
+        ul li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .highlight-box.amber {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .highlight-box h4 {
+            color: #34d399;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .highlight-box.amber h4 {
+            color: #fbbf24;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #93c5fd;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pill-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .pill-online {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .pill-apk {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .diagram-container {
+            background: var(--code-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .flow-grid {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .flow-node {
+            background: rgba(20, 27, 45, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 12px;
+            padding: 20px 24px;
+            min-width: 220px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .flow-node.tablet {
+            border-color: var(--accent-amber);
+        }
+
+        .flow-node.cloud {
+            border-color: var(--primary);
+        }
+
+        .flow-node.headsets {
+            border-color: var(--accent-green);
+        }
+
+        .flow-arrow {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="badge-tag">Arquitetura Definitiva • Embratur 2026</span>
+            <h1>Sistema Multi-VR & Tablet Controller</h1>
+            <p class="subtitle">Manual técnico, fluxo de sincronização e guia de operação para estande de eventos com 4 headsets Meta Quest 3 sincronizados via Photon Cloud.</p>
+        </header>
+
+        <!-- DIAGRAMA DE FLUXO -->
+        <div class="diagram-container">
+            <div class="diagram-title">⚡ Fluxo Operacional e de Mensageria em Tempo Real</div>
+            <div class="flow-grid">
+                <div class="flow-node tablet">
+                    <div style="font-size: 1.5rem; margin-bottom: 6px;">📱</div>
+                    <div style="font-weight: 700; color: #fbbf24;">Tablet Controller</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">com.brasilvr.tablet</div>
+                    <div style="font-size: 0.8rem; margin-top: 8px; color: #e5e7eb;">Publica <code>Video_N</code> & exibe Live Status</div>
+                </div>
+
+                <div class="flow-arrow">⇄</div>
+
+                <div class="flow-node cloud">
+                    <div style="font-size: 1.5rem; margin-bottom: 6px;">☁️</div>
+                    <div style="font-weight: 700; color: #60a5fa;">Photon PUN2 Cloud</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Sala: RiR-23 | Região: sa</div>
+                    <div style="font-size: 0.8rem; margin-top: 8px; color: #e5e7eb;">Room Properties & RPCs em tempo real</div>
+                </div>
+
+                <div class="flow-arrow">⇄</div>
+
+                <div class="flow-node headsets">
+                    <div style="font-size: 1.5rem; margin-bottom: 6px;">🥽</div>
+                    <div style="font-weight: 700; color: #34d399;">4x Meta Quest 3</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Slots 0, 1, 2, 3 (VR1 a VR4)</div>
+                    <div style="font-size: 0.8rem; margin-top: 8px; color: #e5e7eb;">Reprodução local 4K + Auto-Watchdog</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID DE CARDS EXPLICATIVOS -->
+        <div class="grid">
+            <!-- CARD 1 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">1</div>
+                    <div class="card-title">Mapeamento de Slots</div>
+                </div>
+                <p>Cada óculos possui um pacote Android exclusivo que determina o seu Slot sem conflitos de rede:</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Óculos</th>
+                                <th>Pacote</th>
+                                <th>Chave Photon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>VR 1</strong></td>
+                                <td><code>com.Vortex.BrasilVR1</code></td>
+                                <td><code>Video_0</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>VR 2</strong></td>
+                                <td><code>com.Vortex.BrasilVR2</code></td>
+                                <td><code>Video_1</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>VR 3</strong></td>
+                                <td><code>com.Vortex.BrasilVR3</code></td>
+                                <td><code>Video_2</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>VR 4</strong></td>
+                                <td><code>com.Vortex.BrasilVR4</code></td>
+                                <td><code>Video_3</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="highlight-box">
+                    <h4>🔒 Isolamento Garantido</h4>
+                    <p>O clique na linha do Player 2 no Tablet modifica apenas <code>Video_1</code>, garantindo que o Óculos 2 responda isoladamente sem afetar os demais.</p>
+                </div>
+            </div>
+
+            <!-- CARD 2 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">2</div>
+                    <div class="card-title">Armazenamento dos Vídeos</div>
+                </div>
+                <p>Para contornar as restrições de permissão do Android 14+ no Quest 3, os arquivos estão armazenados no diretório interno seguro de cada app:</p>
+                <ul>
+                    <li><strong>Caminho:</strong> <code>/sdcard/Android/data/com.Vortex.BrasilVR[N]/files/</code></li>
+                    <li><strong>Permissão Unix:</strong> <code>chmod 777</code> nos arquivos <code>.mp4</code>.</li>
+                    <li><strong>Performance:</strong> Leitura em disco NVMe direto do headset sem buffer ou lag de streaming.</li>
+                </ul>
+                <div class="highlight-box">
+                    <h4>📂 Vídeos Inclusos em cada Óculos</h4>
+                    <p><code>Amazonia_PT.mp4</code> (2.4GB), <code>Lencois_PT.mp4</code> (1.9GB), <code>Noronha_PT.mp4</code> (2.4GB), <code>Pantanal_PT.mp4</code> (2.3GB), <code>Rio_PT.mp4</code> (2.9GB).</p>
+                </div>
+            </div>
+
+            <!-- CARD 3 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">3</div>
+                    <div class="card-title">Watchdog & Auto-Reconexão</div>
+                </div>
+                <p>Projetado especificamente para a dinâmica de estande, onde os usuários tiram e colocam os óculos frequentemente:</p>
+                <ul>
+                    <li><strong>Tirou do rosto:</strong> O app pausa o vídeo, oculta a esfera 360 e envia status <code>offline</code> para o Tablet.</li>
+                    <li><strong>Standby / Inatividade:</strong> Se o óculos ficar minutos parado na mesa, o watchdog periódico (1.5s) e o handler de <code>OnLeftRoom</code> detectam e forçam a reconexão automática.</li>
+                    <li><strong>Colocou no rosto:</strong> Em 1 a 2 segundos a conexão é restabelecida e o badge no Tablet volta para <strong>ONLINE</strong> verde.</li>
+                    <li><strong>Sem Auto-Play Indesejado:</strong> O óculos entra em repouso aguardando comando limpo do Tablet.</li>
+                </ul>
+            </div>
+
+            <!-- CARD 4 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">4</div>
+                    <div class="card-title">Arquivos Entregáveis (APKs)</div>
+                </div>
+                <p>Todos os instaladores finais prontos para produção estão organizados na pasta <code>Entregaveis_Final/APKs/</code>:</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Arquivo APK</th>
+                                <th>Destino</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="pill-status pill-apk">BrasilVR1.apk</span></td>
+                                <td>Óculos 1 (Player 1)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill-status pill-apk">BrasilVR2.apk</span></td>
+                                <td>Óculos 2 (Player 2)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill-status pill-apk">BrasilVR3.apk</span></td>
+                                <td>Óculos 3 (Player 3)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill-status pill-apk">BrasilVR4.apk</span></td>
+                                <td>Óculos 4 (Player 4)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="pill-status pill-online">BrasilVRController-tablet.apk</span></td>
+                                <td>Tablet do Operador</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GUIA DE OPERAÇÃO RÁPIDA -->
+        <div class="card" style="margin-bottom: 40px;">
+            <div class="card-header">
+                <div class="card-icon">📋</div>
+                <div class="card-title">Guia Operacional para o Estande</div>
+            </div>
+            <div class="grid" style="margin-bottom: 0;">
+                <div>
+                    <h4 style="color: #ffffff; margin-bottom: 8px;">1. Inicialização</h4>
+                    <p>Ligue o Tablet e abra o app <strong>Brasil_VR</strong>. No topo, verifique se a rede indica <code>JoinedRoom | Sala: RiR-23 (sa)</code>.</p>
+                </div>
+                <div>
+                    <h4 style="color: #ffffff; margin-bottom: 8px;">2. Ativação dos Óculos</h4>
+                    <p>Ligue os 4 Óculos Meta Quest e abra o aplicativo correspondente em cada um. As linhas no Tablet ficarão verdes (<code>● ONLINE</code>).</p>
+                </div>
+                <div>
+                    <h4 style="color: #ffffff; margin-bottom: 8px;">3. Reprodução</h4>
+                    <p>Ao sentar um visitante na cadeira do Player 2, por exemplo, basta tocar no destino desejado (ex: <i>Rio de Janeiro</i>). O vídeo iniciará instantaneamente no Óculos 2.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Embratur BrasilVR • Sistema Multi-VR Integrado • Todos os Direitos Reservados</p>
+        </footer>
+    </div>
+</body>
+</html>

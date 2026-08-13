@@ -15,13 +15,23 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [SerializeField] private string fixedAppVersion = "1";
     [SerializeField] private string roomName = "RiR-23";
 
+    private int _cachedSlot = -1;
     public int userID
     {
         get
         {
-            if (PhotonNetwork.LocalPlayer != null)
-                return PhotonNetwork.LocalPlayer.ActorNumber - 1;
-            return -1;
+            if (_cachedSlot >= 0) return _cachedSlot;
+            string appId = Application.identifier;
+            if (!string.IsNullOrEmpty(appId))
+            {
+                char lastChar = appId[appId.Length - 1];
+                if (char.IsDigit(lastChar))
+                {
+                    _cachedSlot = Mathf.Max(0, int.Parse(lastChar.ToString()) - 1);
+                    return _cachedSlot;
+                }
+            }
+            return 0;
         }
     }
     public VRVideoPlayer vrVideoPlayer;
@@ -35,7 +45,16 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
     void Start()
     {
+#if UNITY_ANDROID
+        if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(UnityEngine.Android.Permission.ExternalStorageRead))
+        {
+            UnityEngine.Android.Permission.RequestUserPermission(UnityEngine.Android.Permission.ExternalStorageRead);
+        }
+#endif
+
         roomName = "RiR-23";
+        Application.runInBackground = true;
+        PhotonNetwork.KeepAliveInBackground = 60f;
         OVRManager.HMDMounted += OnHeadsetMounted;
         OVRManager.HMDUnmounted += OnHeadsetUnmounted;
         ConfigurePhotonAndConnect();
@@ -102,17 +121,28 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
+        int slotIndex = 0; // Default (Player 1)
+        string appId = Application.identifier;
+        if (!string.IsNullOrEmpty(appId))
+        {
+            char lastChar = appId[appId.Length - 1];
+            if (char.IsDigit(lastChar))
+            {
+                int headsetNumber = int.Parse(lastChar.ToString());
+                slotIndex = Mathf.Max(0, headsetNumber - 1);
+            }
+        }
+        
+        Debug.Log($"Assigning SlotIndex {slotIndex} based on package {appId}");
 
-        int slotIndex = 2; // FORCANDO PARA PLAYER 3 (Slot 2)
         PhotonNetwork.LocalPlayer.SetCustomProperties(
             new ExitGames.Client.Photon.Hashtable { { "SlotIndex", slotIndex } }
         );
 
         TrySendStatus("online");
 
-        // Sync initial video state from room properties
-        StartCoroutine(DelayedCheckRoomProperties(PhotonNetwork.CurrentRoom.CustomProperties));
+        // Initialize timestamp to current time so old cached room properties are NOT auto-played on connect
+        lastProcessedTime = (float)PhotonNetwork.Time;
 
         if (reconnectRoutine != null)
         {
@@ -123,9 +153,16 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         StartCoroutine(SendVideoDataRoutine());
     }
 
-    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable properties)
     {
-        CheckRoomPropertiesForVideo(propertiesThatChanged);
+        try
+        {
+            CheckRoomPropertiesForVideo(properties);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("Error in OnRoomPropertiesUpdate: " + ex.ToString());
+        }
     }
 
     private string lastProcessedVideo = "";
@@ -140,34 +177,43 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     private void CheckRoomPropertiesForVideo(ExitGames.Client.Photon.Hashtable properties)
     {
         int currentUserId = userID;
-        
-        string newVideoUrl = null;
-        float newTimestamp = 0f;
+
+        Debug.Log($"CheckRoomPropertiesForVideo - My UserID/Slot: {currentUserId} (App: {Application.identifier})");
+        foreach (var key in properties.Keys)
+        {
+            Debug.Log("Property updated: " + key + " = " + properties[key]);
+        }
 
         if (properties.ContainsKey("Video_" + currentUserId))
         {
-            newVideoUrl = (string)properties["Video_" + currentUserId];
-            if (properties.ContainsKey("Time_" + currentUserId)) newTimestamp = (float)properties["Time_" + currentUserId];
+            string newVideoUrl = (string)properties["Video_" + currentUserId];
+            Debug.Log("Matched Video for UserID " + currentUserId + ": " + newVideoUrl);
+            ReceiveSelectVideoCommand(currentUserId, newVideoUrl);
         }
         else if (properties.ContainsKey("GlobalVideo"))
         {
-            newVideoUrl = (string)properties["GlobalVideo"];
-            newTimestamp = (float)properties["GlobalTimestamp"];
-        }
-
-        if (newVideoUrl != null && (newVideoUrl != lastProcessedVideo || newTimestamp > lastProcessedTime))
-        {
-            lastProcessedVideo = newVideoUrl;
-            lastProcessedTime = newTimestamp;
-            ReceiveSelectVideoCommand(currentUserId, newVideoUrl);
+            string newVideoUrl = (string)properties["GlobalVideo"];
+            Debug.Log("Matched GlobalVideo: " + newVideoUrl);
+            ReceiveSelectVideoCommand(-1, newVideoUrl);
         }
     }
 
     public override void OnLeftRoom()
     {
-        Debug.Log($"Left room: {PhotonNetwork.CurrentRoom.Name}");
-        TrySendStatus("offline");
-        SceneManager.LoadScene(0);
+        Debug.Log("[UserStatusSend] Left room. Auto-recovering connection...");
+        EnsureConnection();
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.LogWarning($"[UserStatusSend] OnJoinRoomFailed: {returnCode} - {message}. Retrying in 1s...");
+        Invoke(nameof(JoinOrCreateGameRoom), 1f);
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        Debug.LogWarning($"[UserStatusSend] OnCreateRoomFailed: {returnCode} - {message}. Retrying in 1s...");
+        Invoke(nameof(JoinOrCreateGameRoom), 1f);
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
@@ -208,23 +254,72 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         }
     }
 
+    private float nextConnectionCheckTime = 0f;
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        Debug.Log($"[UserStatusSend] OnApplicationPause: {pauseStatus}");
+        if (!pauseStatus)
+        {
+            EnsureConnection();
+        }
+        else
+        {
+            TrySendStatus("offline");
+        }
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        Debug.Log($"[UserStatusSend] OnApplicationFocus: {hasFocus}");
+        if (hasFocus)
+        {
+            EnsureConnection();
+        }
+    }
+
     private void OnHeadsetMounted()
     {
         Debug.Log("Headset mounted.");
+        EnsureConnection();
+    }
 
-        if (!PhotonNetwork.IsConnected)
+    private int notInRoomTicks = 0;
+
+    public void EnsureConnection()
+    {
+        Debug.Log($"[UserStatusSend] EnsureConnection - State: {PhotonNetwork.NetworkClientState}");
+
+        if (PhotonNetwork.InRoom)
         {
+            notInRoomTicks = 0;
+            TrySendStatus("online");
+            return;
+        }
+
+        if (PhotonNetwork.NetworkClientState == ClientState.Disconnected || 
+            PhotonNetwork.NetworkClientState == ClientState.PeerCreated)
+        {
+            notInRoomTicks = 0;
             Debug.Log("Photon disconnected. Reconnecting...");
             ConfigurePhotonAndConnect();
         }
-        else if (!PhotonNetwork.InRoom)
+        else if (PhotonNetwork.NetworkClientState == ClientState.ConnectedToMasterServer || 
+                 PhotonNetwork.IsConnectedAndReady)
         {
-            Debug.Log("Not in a room. Trying to join or create one...");
+            notInRoomTicks = 0;
+            Debug.Log("Connected to master, joining room: " + roomName);
             JoinOrCreateGameRoom();
         }
         else
         {
-            TrySendStatus("online");
+            notInRoomTicks++;
+            if (notInRoomTicks >= 2)
+            {
+                Debug.LogWarning($"[UserStatusSend] Stuck in state {PhotonNetwork.NetworkClientState}. Forcing disconnect to reset.");
+                notInRoomTicks = 0;
+                PhotonNetwork.Disconnect();
+            }
         }
     }
 
@@ -247,26 +342,39 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (vrVideoPlayer == null)
+        try 
         {
-            return;
+            if (Time.unscaledTime >= nextConnectionCheckTime)
+            {
+                nextConnectionCheckTime = Time.unscaledTime + 2f;
+                EnsureConnection();
+            }
+
+            if (vrVideoPlayer == null)
+            {
+                return;
+            }
+
+            bool isPlaying = vrVideoPlayer.isPlaying;
+
+            if (aviso != null)
+            {
+                aviso.SetActive(!isPlaying);
+            }
+
+            if (ambiente != null)
+            {
+                ambiente.SetActive(!isPlaying);
+            }
+
+            if (sphere != null)
+            {
+                sphere.SetActive(isPlaying);
+            }
         }
-
-        bool isPlaying = vrVideoPlayer.isPlaying;
-
-        if (aviso != null)
+        catch (System.Exception ex)
         {
-            aviso.SetActive(!isPlaying);
-        }
-
-        if (ambiente != null)
-        {
-            ambiente.SetActive(!isPlaying);
-        }
-
-        if (sphere != null)
-        {
-            sphere.SetActive(isPlaying);
+            Debug.LogError("Error in Update: " + ex.ToString());
         }
     }
 
@@ -333,43 +441,78 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReceiveSelectVideoCommand(int targetUserID, string videoUrl)
     {
-        Debug.Log("Command received: " + videoUrl);
+        Debug.Log($"ReceiveSelectVideoCommand: {videoUrl} (target: {targetUserID}, my userID: {userID})");
         if (targetUserID == userID || targetUserID == -1)
         {
-            string fileName = System.IO.Path.GetFileName(videoUrl);
+            string originalFileName = System.IO.Path.GetFileName(videoUrl);
+            string ptFileName = originalFileName;
             
             // Map common names to _PT versions
-            if (fileName.Contains("Amazonia")) fileName = "Amazonia_PT.mp4";
-            else if (fileName.Contains("Lencois")) fileName = "Lencois_PT.mp4";
-            else if (fileName.Contains("Noronha")) fileName = "Noronha_PT.mp4";
-            else if (fileName.Contains("Pantanal")) fileName = "Pantanal_PT.mp4";
-            else if (fileName.Contains("Rio")) fileName = "Rio_PT.mp4";
+            if (ptFileName.Contains("Amazonia")) ptFileName = "Amazonia_PT.mp4";
+            else if (ptFileName.Contains("Lencois")) ptFileName = "Lencois_PT.mp4";
+            else if (ptFileName.Contains("Noronha")) ptFileName = "Noronha_PT.mp4";
+            else if (ptFileName.Contains("Pantanal")) ptFileName = "Pantanal_PT.mp4";
+            else if (ptFileName.Contains("Rio")) ptFileName = "Rio_PT.mp4";
 
-            string resolvedUrl = fileName;
+            string appDataPath = $"/sdcard/Android/data/{Application.identifier}/files";
+            string appDataPathPT = System.IO.Path.Combine(appDataPath, ptFileName);
+            string persistentPathPT = System.IO.Path.Combine(Application.persistentDataPath, ptFileName);
+            string downloadPathPT = System.IO.Path.Combine("/storage/emulated/0/Download", ptFileName);
+            string downloadPathOrig = System.IO.Path.Combine("/storage/emulated/0/Download", originalFileName);
+            string persistentPathOrig = System.IO.Path.Combine(Application.persistentDataPath, originalFileName);
 
-            string downloadPath = System.IO.Path.Combine("/storage/emulated/0/Download", fileName);
-            string persistentPath = System.IO.Path.Combine(Application.persistentDataPath, fileName);
+            Debug.Log("persistentDataPath = " + Application.persistentDataPath);
+            Debug.Log("Procurando video em: " + appDataPathPT);
 
-            if (System.IO.File.Exists(downloadPath))
+            string resolvedUrl = originalFileName; // default to original for StreamingAssets fallback
+            Evereal.VRVideoPlayer.VideoSource sourceType = Evereal.VRVideoPlayer.VideoSource.FROM_STREAMING_ASSETS;
+
+            if (System.IO.File.Exists(appDataPathPT))
             {
-                Debug.Log("Loading video from Downloads path: " + downloadPath);
-                vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
-                resolvedUrl = "file://" + downloadPath;
+                resolvedUrl = appDataPathPT;
+                sourceType = Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL;
+                Debug.Log("Loading video from app data (PT): " + resolvedUrl);
             }
-            else if (System.IO.File.Exists(persistentPath))
+            else if (System.IO.File.Exists(persistentPathPT))
             {
-                Debug.Log("Loading video from persistent path: " + persistentPath);
-                vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
-                resolvedUrl = "file://" + persistentPath;
+                resolvedUrl = persistentPathPT;
+                sourceType = Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL;
+                Debug.Log("Loading video from persistentDataPath (PT): " + resolvedUrl);
+            }
+            else if (System.IO.File.Exists(downloadPathPT))
+            {
+                resolvedUrl = downloadPathPT;
+                sourceType = Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL;
+                Debug.Log("Loading video from Download directory (PT): " + resolvedUrl);
+            }
+            else if (System.IO.File.Exists(downloadPathOrig))
+            {
+                resolvedUrl = downloadPathOrig;
+                sourceType = Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL;
+                Debug.Log("Loading video from Download directory (Orig): " + resolvedUrl);
+            }
+            else if (System.IO.File.Exists(persistentPathOrig))
+            {
+                resolvedUrl = persistentPathOrig;
+                sourceType = Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL;
+                Debug.Log("Loading video from persistentDataPath (Orig): " + resolvedUrl);
             }
             else
             {
-                Debug.Log("Loading video from default StreamingAssets source: " + fileName);
-                vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.FROM_STREAMING_ASSETS);
-                resolvedUrl = fileName;
+                Debug.Log("Loading video from default StreamingAssets source: " + resolvedUrl);
             }
 
-            vrVideoPlayer.Load(resolvedUrl, true);
+            vrVideoPlayer.SetSource(sourceType);
+
+            try
+            {
+                vrVideoPlayer.Load(resolvedUrl, true);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Error loading video: " + ex.ToString());
+            }
+            
             if (sphere != null) sphere.SetActive(true);
         }
     }

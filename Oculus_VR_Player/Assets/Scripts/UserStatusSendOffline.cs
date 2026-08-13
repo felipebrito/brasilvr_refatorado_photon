@@ -182,13 +182,15 @@ public class UserStatusSendOffline : MonoBehaviour
 
         if (System.IO.File.Exists(downloadPath))
         {
+            Debug.Log("Loading video from Downloads path: " + downloadPath);
             vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
-            resolvedUrl = "file://" + downloadPath;
+            resolvedUrl = downloadPath;
         }
         else if (System.IO.File.Exists(persistentPath))
         {
+            Debug.Log("Loading video from persistent path: " + persistentPath);
             vrVideoPlayer.SetSource(Evereal.VRVideoPlayer.VideoSource.ABSOLUTE_URL);
-            resolvedUrl = "file://" + persistentPath;
+            resolvedUrl = persistentPath;
         }
         else
         {

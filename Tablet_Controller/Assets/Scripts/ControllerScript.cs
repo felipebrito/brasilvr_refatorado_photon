@@ -339,6 +339,17 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     public void SendPlayCommand()
     {
+
+        // Se houver apenas um jogador conectado no momento, vamos assumir que o comando
+        // é para ele, independentemente de qual painel da UI foi clicado.
+        if (!sendToAll && playerStatusMap.Count == 1)
+        {
+            foreach (var kvp in playerStatusMap)
+            {
+                selectedPlayerID = kvp.Key - 1; // ID interno é ActorNumber - 1
+                break;
+            }
+        }
         if (sendToAll)
         {
             photonView.RPC("ReceivePlayCommand", RpcTarget.All, -1);
@@ -366,6 +377,17 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     public void SendPauseCommand()
     {
+
+        // Se houver apenas um jogador conectado no momento, vamos assumir que o comando
+        // é para ele, independentemente de qual painel da UI foi clicado.
+        if (!sendToAll && playerStatusMap.Count == 1)
+        {
+            foreach (var kvp in playerStatusMap)
+            {
+                selectedPlayerID = kvp.Key - 1; // ID interno é ActorNumber - 1
+                break;
+            }
+        }
         if (sendToAll)
         {
             photonView.RPC("ReceivePauseCommand", RpcTarget.All, -1);
@@ -393,6 +415,17 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     public void SendStopCommand()
     {
+
+        // Se houver apenas um jogador conectado no momento, vamos assumir que o comando
+        // é para ele, independentemente de qual painel da UI foi clicado.
+        if (!sendToAll && playerStatusMap.Count == 1)
+        {
+            foreach (var kvp in playerStatusMap)
+            {
+                selectedPlayerID = kvp.Key - 1; // ID interno é ActorNumber - 1
+                break;
+            }
+        }
         if (sendToAll)
         {
             photonView.RPC("ReceiveStopCommand", RpcTarget.All, -1);
@@ -517,6 +550,17 @@ public class ControllerScript : MonoBehaviourPunCallbacks
 
     public void SendSelectVideoCommand(string videoUrl)
     {
+
+        // Se houver apenas um jogador conectado no momento, vamos assumir que o comando
+        // é para ele, independentemente de qual painel da UI foi clicado.
+        if (!sendToAll && playerStatusMap.Count == 1)
+        {
+            foreach (var kvp in playerStatusMap)
+            {
+                selectedPlayerID = kvp.Key - 1; // ID interno é ActorNumber - 1
+                break;
+            }
+        }
         string localPreviewUrl = videoUrl;
 
         // A interface ainda manda os nomes longos, mas agora nossos 

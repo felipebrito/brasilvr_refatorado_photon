@@ -13,6 +13,7 @@ public static class BuildTabletApk
             .Select(scene => scene.path)
             .ToArray();
 
+        if (scenes.Length == 0) scenes = new string[] { "Assets/Scenes/SimpleTablet.unity" };
         if (scenes.Length == 0)
             throw new InvalidOperationException("Nenhuma cena habilitada em EditorBuildSettings.");
 
