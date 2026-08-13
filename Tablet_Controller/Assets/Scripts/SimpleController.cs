@@ -103,7 +103,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
         foreach (var p in PhotonNetwork.CurrentRoom.Players.Values)
         {
-            if (p.IsLocal) continue; // Skip tablet itself
+            if (p.IsLocal) continue;
 
             int slot = -1;
             if (p.CustomProperties.ContainsKey("SlotIndex"))
@@ -133,7 +133,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
         {
             bool inRoom = PhotonNetwork.InRoom;
             string onlineTag = inRoom ? "<color=#00FF88>● CONECTADO</color>" : "<color=#FFAA00>○ CONECTANDO...</color>";
-            statusHeader.text = $"BRASIL VR  •  PAINEL DE CONTROLE    <size=22>{onlineTag}</size>";
+            statusHeader.text = $"<b><size=46><color=#60A5FA>BRASIL</color><color=#FCD34D>VR</color></size></b>    <size=22>{onlineTag}</size>\n<size=18><color=#94A3B8>PAINEL DE CONTROLE MULTI-VR</color></size>";
         }
 
         RefreshPlayerOnlineStatuses();
@@ -146,12 +146,12 @@ public class SimpleController : MonoBehaviourPunCallbacks
             {
                 string videoInfo = playerCurrentVideo.ContainsKey(i) ? $"\n<size=18><color=#93C5FD>{playerCurrentVideo[i]}</color></size>" : "";
                 string statusStr = online ? $"<color=#00FF88>● ONLINE</color>{videoInfo}" : "<color=#FF4D4D>○ OFFLINE</color>";
-                playerStatusTexts[i].text = $"<b><size=38>{i + 1}</size></b>   {statusStr}";
+                playerStatusTexts[i].text = $"<b><size=54>{i + 1}</size></b>\n<size=20>{statusStr}</size>";
             }
 
             if (playerStatusBadges[i] != null)
             {
-                playerStatusBadges[i].color = online ? new Color(0.08f, 0.22f, 0.16f, 0.95f) : new Color(0.16f, 0.11f, 0.13f, 0.95f);
+                playerStatusBadges[i].color = online ? new Color(0.06f, 0.20f, 0.14f, 1f) : new Color(0.14f, 0.08f, 0.10f, 1f);
             }
         }
     }
