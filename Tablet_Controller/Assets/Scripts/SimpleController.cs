@@ -153,8 +153,8 @@ public class SimpleController : MonoBehaviourPunCallbacks
         if (statusHeader != null)
         {
             bool inRoom = PhotonNetwork.InRoom;
-            string onlineTag = inRoom ? "<color=#00FF88>● CONECTADO</color>" : "<color=#FFAA00>○ CONECTANDO...</color>";
-            statusHeader.text = $"<b><size=44><color=#60A5FA>BRASIL</color><color=#FCD34D>VR</color></size></b>    <size=20>{onlineTag}</size>\n<size=18><color=#94A3B8>PAINEL DE CONTROLE MULTI-VR</color></size>";
+            string onlineTag = inRoom ? "<color=#22C55E>● CONECTADO</color>" : "<color=#FBBF24>○ CONECTANDO...</color>";
+            statusHeader.text = $"<b><size=46><color=#38BDF8>BRASIL</color><color=#FACC15>VR</color></size></b>      <size=22>{onlineTag}</size>\n<size=18><color=#E2E8F0>PAINEL DE CONTROLE MULTI-VR</color></size>";
         }
 
         RefreshPlayerOnlineStatuses();
@@ -165,17 +165,18 @@ public class SimpleController : MonoBehaviourPunCallbacks
             bool playing = playerIsPlaying.ContainsKey(i) && playerIsPlaying[i];
             string curVid = playerCurrentVideo.ContainsKey(i) ? playerCurrentVideo[i].ToLowerInvariant() : "";
             float prog = playerProgress.ContainsKey(i) ? playerProgress[i] : 0f;
-            string timeText = playerTimeStr.ContainsKey(i) && !string.IsNullOrEmpty(playerTimeStr[i]) ? $"\n<size=17><color=#93C5FD>{playerTimeStr[i]}</color></size>" : "";
+            string timeText = playerTimeStr.ContainsKey(i) && !string.IsNullOrEmpty(playerTimeStr[i]) ? $"\n<size=18><color=#67E8F9><b>{playerTimeStr[i]}</b></color></size>" : "";
 
             if (playerStatusTexts[i] != null)
             {
-                string statusBadge = online ? "<color=#00FF88>● ON</color>" : "<color=#FF4D4D>○ OFF</color>";
-                playerStatusTexts[i].text = $"<b><size=50>{i + 1}</size></b>   {statusBadge}{timeText}";
+                string statusBadge = online ? "<color=#22C55E><b>● ON</b></color>" : "<color=#EF4444><b>○ OFF</b></color>";
+                playerStatusTexts[i].text = $"<b><size=52>{i + 1}</size></b>   {statusBadge}{timeText}";
             }
 
             if (playerStatusBadges[i] != null)
             {
-                playerStatusBadges[i].color = online ? new Color(0.07f, 0.16f, 0.25f, 1f) : new Color(0.12f, 0.08f, 0.10f, 1f);
+                // Vibrant background for status badge
+                playerStatusBadges[i].color = online ? new Color(0.10f, 0.28f, 0.22f, 1f) : new Color(0.24f, 0.12f, 0.15f, 1f);
             }
 
             if (playerPlayPauseTexts != null && i < playerPlayPauseTexts.Length && playerPlayPauseTexts[i] != null)
@@ -183,7 +184,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
                 playerPlayPauseTexts[i].text = playing ? "⏸" : "▶";
             }
 
-            // Update Progress Fills on the 5 buttons
+            // Update Progressive Fill on the 5 buttons
             if (playerButtonFills != null && i < playerButtonFills.Length && playerButtonFills[i] != null)
             {
                 for (int v = 0; v < 5; v++)
@@ -195,7 +196,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
                         if (isThisVideo && online && prog > 0f)
                         {
                             fillImg.fillAmount = Mathf.Clamp01(prog);
-                            fillImg.color = new Color(0.12f, 0.55f, 0.95f, 0.45f); // Vibrant Cyan-Blue progress fill
+                            fillImg.color = new Color(0.06f, 0.72f, 0.88f, 0.75f); // Bright electric cyan fill!
                         }
                         else
                         {
