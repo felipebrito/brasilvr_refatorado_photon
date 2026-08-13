@@ -17,16 +17,37 @@ public class SimpleController : MonoBehaviourPunCallbacks
     public Text statusHeader;
     public Text[] playerStatusTexts = new Text[4];
     public Image[] playerStatusBadges = new Image[4];
+    public Text[] playerPlayPauseTexts = new Text[4];
+
+    [System.Serializable]
+    public class RowFills
+    {
+        public Image[] fills = new Image[5];
+    }
+    public RowFills[] playerButtonFills = new RowFills[4];
 
     public Evereal.VRVideoPlayer.VRVideoPlayer localPreviewPlayer;
 
+    private string[] videoKeywords = { "amazonia", "lencois", "noronha", "pantanal", "rio" };
     private Dictionary<int, string> playerCurrentVideo = new Dictionary<int, string>();
     private Dictionary<int, bool> playerIsOnline = new Dictionary<int, bool>();
+    private Dictionary<int, bool> playerIsPlaying = new Dictionary<int, bool>();
+    private Dictionary<int, float> playerProgress = new Dictionary<int, float>();
+    private Dictionary<int, string> playerTimeStr = new Dictionary<int, string>();
 
     void Start()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Application.runInBackground = true;
+
+        for (int i = 0; i < 4; i++)
+        {
+            playerCurrentVideo[i] = "";
+            playerIsOnline[i] = false;
+            playerIsPlaying[i] = false;
+            playerProgress[i] = 0f;
+            playerTimeStr[i] = "";
+        }
 
         ConfigureAndConnect();
     }
@@ -133,7 +154,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
         {
             bool inRoom = PhotonNetwork.InRoom;
             string onlineTag = inRoom ? "<color=#00FF88>● CONECTADO</color>" : "<color=#FFAA00>○ CONECTANDO...</color>";
-            statusHeader.text = $"<b><size=46><color=#60A5FA>BRASIL</color><color=#FCD34D>VR</color></size></b>    <size=22>{onlineTag}</size>\n<size=18><color=#94A3B8>PAINEL DE CONTROLE MULTI-VR</color></size>";
+            statusHeader.text = $"<b><size=44><color=#60A5FA>BRASIL</color><color=#FCD34D>VR</color></size></b>    <size=20>{onlineTag}</size>\n<size=18><color=#94A3B8>PAINEL DE CONTROLE MULTI-VR</color></size>";
         }
 
         RefreshPlayerOnlineStatuses();
@@ -141,17 +162,47 @@ public class SimpleController : MonoBehaviourPunCallbacks
         for (int i = 0; i < 4; i++)
         {
             bool online = playerIsOnline.ContainsKey(i) && playerIsOnline[i];
-            
+            bool playing = playerIsPlaying.ContainsKey(i) && playerIsPlaying[i];
+            string curVid = playerCurrentVideo.ContainsKey(i) ? playerCurrentVideo[i].ToLowerInvariant() : "";
+            float prog = playerProgress.ContainsKey(i) ? playerProgress[i] : 0f;
+            string timeText = playerTimeStr.ContainsKey(i) && !string.IsNullOrEmpty(playerTimeStr[i]) ? $"\n<size=17><color=#93C5FD>{playerTimeStr[i]}</color></size>" : "";
+
             if (playerStatusTexts[i] != null)
             {
-                string videoInfo = playerCurrentVideo.ContainsKey(i) ? $"\n<size=18><color=#93C5FD>{playerCurrentVideo[i]}</color></size>" : "";
-                string statusStr = online ? $"<color=#00FF88>● ONLINE</color>{videoInfo}" : "<color=#FF4D4D>○ OFFLINE</color>";
-                playerStatusTexts[i].text = $"<b><size=54>{i + 1}</size></b>\n<size=20>{statusStr}</size>";
+                string statusBadge = online ? "<color=#00FF88>● ON</color>" : "<color=#FF4D4D>○ OFF</color>";
+                playerStatusTexts[i].text = $"<b><size=50>{i + 1}</size></b>   {statusBadge}{timeText}";
             }
 
             if (playerStatusBadges[i] != null)
             {
-                playerStatusBadges[i].color = online ? new Color(0.06f, 0.20f, 0.14f, 1f) : new Color(0.14f, 0.08f, 0.10f, 1f);
+                playerStatusBadges[i].color = online ? new Color(0.07f, 0.16f, 0.25f, 1f) : new Color(0.12f, 0.08f, 0.10f, 1f);
+            }
+
+            if (playerPlayPauseTexts != null && i < playerPlayPauseTexts.Length && playerPlayPauseTexts[i] != null)
+            {
+                playerPlayPauseTexts[i].text = playing ? "⏸" : "▶";
+            }
+
+            // Update Progress Fills on the 5 buttons
+            if (playerButtonFills != null && i < playerButtonFills.Length && playerButtonFills[i] != null)
+            {
+                for (int v = 0; v < 5; v++)
+                {
+                    Image fillImg = playerButtonFills[i].fills != null && v < playerButtonFills[i].fills.Length ? playerButtonFills[i].fills[v] : null;
+                    if (fillImg != null)
+                    {
+                        bool isThisVideo = !string.IsNullOrEmpty(curVid) && curVid.Contains(videoKeywords[v]);
+                        if (isThisVideo && online && prog > 0f)
+                        {
+                            fillImg.fillAmount = Mathf.Clamp01(prog);
+                            fillImg.color = new Color(0.12f, 0.55f, 0.95f, 0.45f); // Vibrant Cyan-Blue progress fill
+                        }
+                        else
+                        {
+                            fillImg.fillAmount = 0f;
+                        }
+                    }
+                }
             }
         }
     }
@@ -159,17 +210,20 @@ public class SimpleController : MonoBehaviourPunCallbacks
     public void PlayVideo(int slotIndex, string videoUrl)
     {
         string finalVideoName = "Videos/Amazonia_PT.mp4";
-        if (videoUrl.Contains("Noronha")) finalVideoName = "Videos/Noronha_PT.mp4";
-        else if (videoUrl.Contains("Lencois")) finalVideoName = "Videos/Lencois_PT.mp4";
-        else if (videoUrl.Contains("Pantanal")) finalVideoName = "Videos/Pantanal_PT.mp4";
-        else if (videoUrl.Contains("Rio")) finalVideoName = "Videos/Rio_PT.mp4";
+        if (videoUrl.ToLowerInvariant().Contains("noronha")) finalVideoName = "Videos/Noronha_PT.mp4";
+        else if (videoUrl.ToLowerInvariant().Contains("lencois")) finalVideoName = "Videos/Lencois_PT.mp4";
+        else if (videoUrl.ToLowerInvariant().Contains("pantanal")) finalVideoName = "Videos/Pantanal_PT.mp4";
+        else if (videoUrl.ToLowerInvariant().Contains("rio")) finalVideoName = "Videos/Rio_PT.mp4";
 
         int userID = slotIndex;
-        Debug.Log($"[Tablet] Enviando {finalVideoName} para Slot {userID + 1}");
+        Debug.Log($"[Tablet] Disparando {finalVideoName} para Óculos {userID + 1}");
+
+        playerCurrentVideo[userID] = finalVideoName;
+        playerProgress[userID] = 0.01f;
+        playerIsPlaying[userID] = true;
 
         if (PhotonNetwork.CurrentRoom == null)
         {
-            Debug.LogError("Ainda não conectou na sala do Photon!");
             ConnectToPhoton();
             return;
         }
@@ -198,6 +252,49 @@ public class SimpleController : MonoBehaviourPunCallbacks
         }
     }
 
+    public void TogglePlayPause(int slotIndex)
+    {
+        int userID = slotIndex;
+        bool isPlaying = playerIsPlaying.ContainsKey(userID) && playerIsPlaying[userID];
+
+        PhotonView pv = GetComponent<PhotonView>();
+        if (pv != null && PhotonNetwork.InRoom)
+        {
+            if (isPlaying)
+            {
+                pv.RPC("ReceivePauseCommand", RpcTarget.All, userID);
+                playerIsPlaying[userID] = false;
+            }
+            else
+            {
+                pv.RPC("ReceivePlayCommand", RpcTarget.All, userID);
+                playerIsPlaying[userID] = true;
+            }
+        }
+    }
+
+    public void StopVideo(int slotIndex)
+    {
+        int userID = slotIndex;
+        PhotonView pv = GetComponent<PhotonView>();
+        if (pv != null && PhotonNetwork.InRoom)
+        {
+            try
+            {
+                pv.RPC("ReceiveStopCommand", RpcTarget.All, userID);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning("Stop RPC warning: " + ex.Message);
+            }
+        }
+
+        playerCurrentVideo[userID] = "";
+        playerProgress[userID] = 0f;
+        playerIsPlaying[userID] = false;
+        playerTimeStr[userID] = "";
+    }
+
     [PunRPC]
     public void UpdateVideoData33(int targetUserID, string videoName, string url, bool isPlaying, double currentTime, double totalTime)
     {
@@ -205,9 +302,24 @@ public class SimpleController : MonoBehaviourPunCallbacks
         {
             string cleanName = System.IO.Path.GetFileNameWithoutExtension(videoName ?? url);
             cleanName = cleanName.Replace("_PT", "").Replace("_EN", "").Replace("_ES", "");
-            string timeFormatted = $"{Mathf.FloorToInt((float)currentTime / 60):00}:{Mathf.FloorToInt((float)currentTime % 60):00}";
-            playerCurrentVideo[targetUserID] = $"{cleanName} [{timeFormatted}]";
+            
+            string currentFormatted = $"{Mathf.FloorToInt((float)currentTime / 60):00}:{Mathf.FloorToInt((float)currentTime % 60):00}";
+            string totalFormatted = totalTime > 0 ? $"{Mathf.FloorToInt((float)totalTime / 60):00}:{Mathf.FloorToInt((float)totalTime % 60):00}" : "";
+            
+            playerCurrentVideo[targetUserID] = videoName ?? url ?? "";
             playerIsOnline[targetUserID] = true;
+            playerIsPlaying[targetUserID] = isPlaying;
+            
+            if (totalTime > 0)
+            {
+                playerProgress[targetUserID] = Mathf.Clamp01((float)(currentTime / totalTime));
+                playerTimeStr[targetUserID] = $"{cleanName}\n{currentFormatted} / {totalFormatted}";
+            }
+            else
+            {
+                playerProgress[targetUserID] = 0f;
+                playerTimeStr[targetUserID] = cleanName;
+            }
         }
     }
 
