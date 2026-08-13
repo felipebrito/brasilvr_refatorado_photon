@@ -72,7 +72,6 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("Connected to Master. Joining room: " + roomName);
         PhotonNetwork.JoinOrCreateRoom(roomName, new RoomOptions { MaxPlayers = 20 }, TypedLobby.Default);
     }
 
@@ -83,13 +82,11 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log($"Player entered: {newPlayer.ActorNumber}");
         RefreshPlayerOnlineStatuses();
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.Log($"Player left: {otherPlayer.ActorNumber}");
         RefreshPlayerOnlineStatuses();
     }
 
@@ -115,7 +112,6 @@ public class SimpleController : MonoBehaviourPunCallbacks
             }
             else
             {
-                // Fallback to ActorNumber
                 slot = p.ActorNumber - 2; 
             }
 
@@ -135,10 +131,9 @@ public class SimpleController : MonoBehaviourPunCallbacks
     {
         if (statusHeader != null)
         {
-            string state = PhotonNetwork.NetworkClientState.ToString();
-            int count = PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.PlayerCount : 0;
-            string region = PhotonNetwork.CloudRegion ?? fixedRegion;
-            statusHeader.text = $"Rede: {state} | Sala: {roomName} ({region}) | Conectados: {count}";
+            bool inRoom = PhotonNetwork.InRoom;
+            string onlineTag = inRoom ? "<color=#00FF88>● CONECTADO</color>" : "<color=#FFAA00>○ CONECTANDO...</color>";
+            statusHeader.text = $"BRASIL VR  •  PAINEL DE CONTROLE    <size=22>{onlineTag}</size>";
         }
 
         RefreshPlayerOnlineStatuses();
@@ -149,14 +144,14 @@ public class SimpleController : MonoBehaviourPunCallbacks
             
             if (playerStatusTexts[i] != null)
             {
-                string videoInfo = playerCurrentVideo.ContainsKey(i) ? $" - {playerCurrentVideo[i]}" : "";
-                string statusStr = online ? $"<color=#00FF66>● ONLINE</color>{videoInfo}" : "<color=#FF4444>○ DESCONECTADO</color>";
-                playerStatusTexts[i].text = $"Player {i + 1} {statusStr}";
+                string videoInfo = playerCurrentVideo.ContainsKey(i) ? $"\n<size=18><color=#93C5FD>{playerCurrentVideo[i]}</color></size>" : "";
+                string statusStr = online ? $"<color=#00FF88>● ONLINE</color>{videoInfo}" : "<color=#FF4D4D>○ OFFLINE</color>";
+                playerStatusTexts[i].text = $"<b><size=38>{i + 1}</size></b>   {statusStr}";
             }
 
             if (playerStatusBadges[i] != null)
             {
-                playerStatusBadges[i].color = online ? new Color(0.1f, 0.8f, 0.2f, 1f) : new Color(0.8f, 0.2f, 0.2f, 1f);
+                playerStatusBadges[i].color = online ? new Color(0.08f, 0.22f, 0.16f, 0.95f) : new Color(0.16f, 0.11f, 0.13f, 0.95f);
             }
         }
     }
@@ -170,7 +165,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
         else if (videoUrl.Contains("Rio")) finalVideoName = "Videos/Rio_PT.mp4";
 
         int userID = slotIndex;
-        Debug.Log($"[Tablet] Enviando {finalVideoName} para Player {userID + 1} (Slot {userID})");
+        Debug.Log($"[Tablet] Enviando {finalVideoName} para Slot {userID + 1}");
 
         if (PhotonNetwork.CurrentRoom == null)
         {
@@ -209,6 +204,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
         if (targetUserID >= 0 && targetUserID < 4)
         {
             string cleanName = System.IO.Path.GetFileNameWithoutExtension(videoName ?? url);
+            cleanName = cleanName.Replace("_PT", "").Replace("_EN", "").Replace("_ES", "");
             string timeFormatted = $"{Mathf.FloorToInt((float)currentTime / 60):00}:{Mathf.FloorToInt((float)currentTime % 60):00}";
             playerCurrentVideo[targetUserID] = $"{cleanName} [{timeFormatted}]";
             playerIsOnline[targetUserID] = true;
