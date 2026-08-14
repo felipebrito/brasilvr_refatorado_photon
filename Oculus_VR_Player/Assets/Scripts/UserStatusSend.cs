@@ -196,6 +196,15 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
             Debug.Log("Matched GlobalVideo: " + newVideoUrl);
             ReceiveSelectVideoCommand(-1, newVideoUrl);
         }
+
+        if (properties.ContainsKey("Command_" + currentUserId))
+        {
+            string cmd = (string)properties["Command_" + currentUserId];
+            Debug.Log($"Matched Command for UserID {currentUserId}: {cmd}");
+            if (cmd == "pause") ReceivePauseCommand(currentUserId);
+            else if (cmd == "play") ReceivePlayCommand(currentUserId);
+            else if (cmd == "stop") ReceiveStopCommand(currentUserId);
+        }
     }
 
     public override void OnLeftRoom()

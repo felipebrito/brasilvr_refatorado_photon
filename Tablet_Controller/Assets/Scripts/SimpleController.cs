@@ -23,6 +23,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
     [System.Serializable]
     public class RowElements
     {
+        public Button[] buttons = new Button[5];
         public Image[] btnBackgrounds = new Image[5];
         public Image[] btnFrames = new Image[5];
         public Image[] btnFills = new Image[5];
@@ -42,11 +43,11 @@ public class SimpleController : MonoBehaviourPunCallbacks
     private bool[] playerIsPlaying = new bool[4] { false, false, false, false };
 
     // Colors
-    private readonly Color colNormalBg = new Color(0.10f, 0.16f, 0.28f, 1f);      // Dark navy
-    private readonly Color colNormalFrame = new Color(0.18f, 0.32f, 0.52f, 0.7f); // Subtle frame
-    private readonly Color colActiveBg = new Color(0.14f, 0.28f, 0.58f, 1f);       // Bright lighter blue active
-    private readonly Color colActiveFrame = new Color(0.25f, 0.75f, 1f, 1f);       // Glowing Cyan frame
-    private readonly Color colFill = new Color(0.05f, 0.80f, 0.95f, 0.65f);        // Electric Cyan fill
+    private readonly Color colNormalBg = new Color(0.11f, 0.18f, 0.32f, 1f);      // Royal Navy
+    private readonly Color colNormalFrame = new Color(0.20f, 0.38f, 0.65f, 0.8f); // Blue Frame
+    private readonly Color colActiveBg = new Color(0.18f, 0.36f, 0.72f, 1f);       // Brighter Blue Active
+    private readonly Color colActiveFrame = new Color(0.22f, 0.85f, 1f, 1f);       // Luminous Electric Cyan Frame
+    private readonly Color colFill = new Color(0.06f, 0.82f, 0.95f, 0.75f);        // Electric Cyan Fill
 
     void Start()
     {
@@ -80,7 +81,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        // Advance local timers smoothly
+        // Smoothly increment active timers every frame
         for (int i = 0; i < 4; i++)
         {
             if (playerIsPlaying[i] && activeVideoIndex[i] >= 0)
@@ -184,30 +185,33 @@ public class SimpleController : MonoBehaviourPunCallbacks
             float curTime = activeTimer[i];
             float totalTime = activeDuration[i];
 
-            // Badge text & status
+            // Badge Text & Status
             if (playerStatusTexts[i] != null)
             {
                 string statusBadge = online ? "<color=#22C55E><b>● ON</b></color>" : "<color=#EF4444><b>○ OFF</b></color>";
                 string timeFormatted = "";
-                if (curActive >= 0 && playing)
+                if (curActive >= 0 && (playing || curTime > 0))
                 {
                     string curStr = $"{Mathf.FloorToInt(curTime / 60):00}:{Mathf.FloorToInt(curTime % 60):00}";
                     string totStr = $"{Mathf.FloorToInt(totalTime / 60):00}:{Mathf.FloorToInt(totalTime % 60):00}";
                     timeFormatted = $"\n<size=16><color=#67E8F9><b>{curStr} / {totStr}</b></color></size>";
                 }
-                playerStatusTexts[i].text = $"<b><size=50>{i + 1}</size></b>   {statusBadge}{timeFormatted}";
+                playerStatusTexts[i].text = $"<b><size=52>{i + 1}</size></b>   {statusBadge}{timeFormatted}";
             }
 
             if (playerStatusBadges[i] != null)
             {
-                playerStatusBadges[i].color = online ? new Color(0.10f, 0.25f, 0.20f, 1f) : new Color(0.22f, 0.12f, 0.14f, 1f);
+                playerStatusBadges[i].color = online ? new Color(0.10f, 0.25f, 0.20f, 1f) : new Color(0.20f, 0.10f, 0.12f, 1f);
             }
 
-            // Play/Pause and Stop Controls visibility (ONLY APPEAR WHEN A VIDEO IS ACTIVE/PLAYING)
+            // Play/Pause & Stop Controls visibility (ONLY APPEAR WHEN VIDEO IS ACTIVE/SELECTED)
             bool showControls = online && (curActive >= 0);
             if (playerControlContainers != null && i < playerControlContainers.Length && playerControlContainers[i] != null)
             {
-                playerControlContainers[i].SetActive(showControls);
+                if (playerControlContainers[i].activeSelf != showControls)
+                {
+                    playerControlContainers[i].SetActive(showControls);
+                }
             }
 
             if (playerPlayPauseTexts != null && i < playerPlayPauseTexts.Length && playerPlayPauseTexts[i] != null)
@@ -215,22 +219,42 @@ public class SimpleController : MonoBehaviourPunCallbacks
                 playerPlayPauseTexts[i].text = playing ? "⏸" : "▶";
             }
 
-            // Video Buttons: Active state & Progressive Fill
+            // Buttons: Only clickable if online! Active highlighting & Progressive Fill
             if (playerRows != null && i < playerRows.Length && playerRows[i] != null)
             {
                 for (int v = 0; v < 5; v++)
                 {
                     bool isActiveVideo = (curActive == v);
+                    Button btn = playerRows[i].buttons != null && v < playerRows[i].buttons.Length ? playerRows[i].buttons[v] : null;
                     Image bg = playerRows[i].btnBackgrounds != null && v < playerRows[i].btnBackgrounds.Length ? playerRows[i].btnBackgrounds[v] : null;
                     Image frame = playerRows[i].btnFrames != null && v < playerRows[i].btnFrames.Length ? playerRows[i].btnFrames[v] : null;
                     Image fill = playerRows[i].btnFills != null && v < playerRows[i].btnFills.Length ? playerRows[i].btnFills[v] : null;
+                    Text txt = playerRows[i].btnTexts != null && v < playerRows[i].btnTexts.Length ? playerRows[i].btnTexts[v] : null;
 
-                    if (bg != null) bg.color = isActiveVideo ? colActiveBg : colNormalBg;
-                    if (frame != null) frame.color = isActiveVideo ? colActiveFrame : colNormalFrame;
+                    if (btn != null)
+                    {
+                        // ONLY CLICKABLE IF ONLINE!
+                        btn.interactable = online;
+                    }
+
+                    if (bg != null)
+                    {
+                        bg.color = !online ? new Color(0.08f, 0.11f, 0.18f, 0.5f) : (isActiveVideo ? colActiveBg : colNormalBg);
+                    }
+
+                    if (frame != null)
+                    {
+                        frame.color = !online ? new Color(0.14f, 0.18f, 0.25f, 0.4f) : (isActiveVideo ? colActiveFrame : colNormalFrame);
+                    }
+
+                    if (txt != null)
+                    {
+                        txt.color = !online ? new Color(0.5f, 0.55f, 0.65f, 0.5f) : Color.white;
+                    }
 
                     if (fill != null)
                     {
-                        if (isActiveVideo && totalTime > 0f)
+                        if (isActiveVideo && totalTime > 0f && online)
                         {
                             fill.fillAmount = Mathf.Clamp01(curTime / totalTime);
                             fill.color = colFill;
@@ -247,6 +271,12 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
     public void PlayVideo(int slotIndex, string videoUrl)
     {
+        if (!playerIsOnline[slotIndex])
+        {
+            Debug.LogWarning($"[Tablet] Slot {slotIndex + 1} está offline! Ignorando comando.");
+            return;
+        }
+
         string finalVideoName = "Videos/Amazonia_PT.mp4";
         int vidIndex = 0;
 
@@ -276,6 +306,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
         ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
         props.Add("Video_" + userID, finalVideoName);
+        props.Add("Command_" + userID, "play");
         props.Add("Time_" + userID, (float)PhotonNetwork.Time);
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
 
@@ -285,6 +316,7 @@ public class SimpleController : MonoBehaviourPunCallbacks
             try
             {
                 pv.RPC("ReceiveSelectVideoCommand", RpcTarget.All, userID, finalVideoName);
+                pv.RPC("ReceivePlayCommand", RpcTarget.All, userID);
             }
             catch (System.Exception ex)
             {
@@ -295,28 +327,59 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
     public void TogglePlayPause(int slotIndex)
     {
+        if (!playerIsOnline[slotIndex]) return;
+
         int userID = slotIndex;
         bool isPlaying = playerIsPlaying[userID];
         bool newPlaying = !isPlaying;
         playerIsPlaying[userID] = newPlaying;
 
+        Debug.Log($"[Tablet] TogglePlayPause for Slot {userID + 1} -> {(newPlaying ? "PLAY" : "PAUSE")}");
+
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+        props.Add("Command_" + userID, newPlaying ? "play" : "pause");
+        props.Add("Time_" + userID, (float)PhotonNetwork.Time);
+        if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+        }
+
         PhotonView pv = GetComponent<PhotonView>();
         if (pv != null && PhotonNetwork.InRoom)
         {
-            if (newPlaying)
+            try
             {
-                pv.RPC("ReceivePlayCommand", RpcTarget.All, userID);
+                if (newPlaying)
+                {
+                    pv.RPC("ReceivePlayCommand", RpcTarget.All, userID);
+                }
+                else
+                {
+                    pv.RPC("ReceivePauseCommand", RpcTarget.All, userID);
+                }
             }
-            else
+            catch (System.Exception ex)
             {
-                pv.RPC("ReceivePauseCommand", RpcTarget.All, userID);
+                Debug.LogWarning("Play/Pause RPC warning: " + ex.Message);
             }
         }
     }
 
     public void StopVideo(int slotIndex)
     {
+        if (!playerIsOnline[slotIndex]) return;
+
         int userID = slotIndex;
+        Debug.Log($"[Tablet] StopVideo for Slot {userID + 1}");
+
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
+        props.Add("Command_" + userID, "stop");
+        props.Add("Time_" + userID, (float)PhotonNetwork.Time);
+        if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+        }
+
         PhotonView pv = GetComponent<PhotonView>();
         if (pv != null && PhotonNetwork.InRoom)
         {

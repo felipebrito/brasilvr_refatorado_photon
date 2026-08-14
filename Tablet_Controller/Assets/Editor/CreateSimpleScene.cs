@@ -120,8 +120,8 @@ public class CreateSimpleScene
             GameObject goBadgeFrame = new GameObject("BadgeFrame_" + (i + 1));
             goBadgeFrame.transform.SetParent(goRow.transform, false);
             LayoutElement leBadgeBox = goBadgeFrame.AddComponent<LayoutElement>();
-            leBadgeBox.minWidth = 210; // Narrower as requested!
-            leBadgeBox.preferredWidth = 210;
+            leBadgeBox.minWidth = 230; // Compact width
+            leBadgeBox.preferredWidth = 230;
             leBadgeBox.flexibleWidth = 0;
             leBadgeBox.flexibleHeight = 1;
 
@@ -146,7 +146,7 @@ public class CreateSimpleScene
             hlgBadge.childForceExpandWidth = false;
             hlgBadge.childForceExpandHeight = true;
             hlgBadge.spacing = 6;
-            hlgBadge.padding = new RectOffset(12, 10, 8, 8);
+            hlgBadge.padding = new RectOffset(12, 8, 8, 8);
 
             // Left-aligned Text (Number 1, 2, 3, 4 + Status)
             GameObject goBadgeTxt = new GameObject("StatusText");
@@ -156,7 +156,7 @@ public class CreateSimpleScene
             leTxt.flexibleHeight = 1;
 
             Text txtBadge = goBadgeTxt.AddComponent<Text>();
-            txtBadge.text = $"<b><size=50>{i + 1}</size></b>   <color=#EF4444><b>○ OFF</b></color>";
+            txtBadge.text = $"<b><size=52>{i + 1}</size></b>   <color=#EF4444><b>○ OFF</b></color>";
             txtBadge.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             txtBadge.fontSize = 20;
             txtBadge.color = Color.white;
@@ -169,8 +169,8 @@ public class CreateSimpleScene
             GameObject goControls = new GameObject("SessionControls");
             goControls.transform.SetParent(goBadgeBox.transform, false);
             LayoutElement leControls = goControls.AddComponent<LayoutElement>();
-            leControls.minWidth = 90;
-            leControls.preferredWidth = 90;
+            leControls.minWidth = 105;
+            leControls.preferredWidth = 105;
             leControls.flexibleWidth = 0;
             leControls.flexibleHeight = 1;
 
@@ -179,11 +179,11 @@ public class CreateSimpleScene
             hlgControls.childControlHeight = true;
             hlgControls.childForceExpandWidth = true;
             hlgControls.childForceExpandHeight = true;
-            hlgControls.spacing = 4;
+            hlgControls.spacing = 6;
             sc.playerControlContainers[i] = goControls;
-            goControls.SetActive(false); // Initially hidden!
+            goControls.SetActive(false); // Hidden until a video is started!
 
-            // Play/Pause Button
+            // Play/Pause Button (Large Touch Area)
             GameObject goPlayBtn = new GameObject("Btn_PlayPause");
             goPlayBtn.transform.SetParent(goControls.transform, false);
             LayoutElement lePlay = goPlayBtn.AddComponent<LayoutElement>();
@@ -211,7 +211,7 @@ public class CreateSimpleScene
             Text txtPlay = goPlayTxt.AddComponent<Text>();
             txtPlay.text = "▶";
             txtPlay.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtPlay.fontSize = 26;
+            txtPlay.fontSize = 32;
             txtPlay.fontStyle = FontStyle.Bold;
             txtPlay.color = Color.white;
             txtPlay.alignment = TextAnchor.MiddleCenter;
@@ -223,7 +223,7 @@ public class CreateSimpleScene
             proxyPlay.action = ButtonProxy.ActionType.TogglePlayPause;
             UnityEditor.Events.UnityEventTools.AddPersistentListener(btnPlay.onClick, proxyPlay.OnClick);
 
-            // Stop Button
+            // Stop Button (Large Touch Area)
             GameObject goStopBtn = new GameObject("Btn_Stop");
             goStopBtn.transform.SetParent(goControls.transform, false);
             LayoutElement leStop = goStopBtn.AddComponent<LayoutElement>();
@@ -251,7 +251,7 @@ public class CreateSimpleScene
             Text txtStop = goStopTxt.AddComponent<Text>();
             txtStop.text = "⏹";
             txtStop.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtStop.fontSize = 24;
+            txtStop.fontSize = 28;
             txtStop.fontStyle = FontStyle.Bold;
             txtStop.color = Color.white;
             txtStop.alignment = TextAnchor.MiddleCenter;
@@ -274,7 +274,7 @@ public class CreateSimpleScene
                 leBtn.flexibleHeight = 1;
 
                 Image imgFrame = goBtnFrame.AddComponent<Image>();
-                imgFrame.color = new Color(0.18f, 0.32f, 0.52f, 0.7f);
+                imgFrame.color = new Color(0.20f, 0.38f, 0.65f, 0.8f);
                 sc.playerRows[i].btnFrames[v] = imgFrame;
 
                 // Button Body
@@ -287,7 +287,7 @@ public class CreateSimpleScene
                 rtBtn.offsetMax = new Vector2(-3, -3);
 
                 Image btnBg = goBtn.AddComponent<Image>();
-                btnBg.color = new Color(0.10f, 0.16f, 0.28f, 1f);
+                btnBg.color = new Color(0.11f, 0.18f, 0.32f, 1f);
                 sc.playerRows[i].btnBackgrounds[v] = btnBg;
 
                 // Progressive Fill Image
@@ -305,7 +305,7 @@ public class CreateSimpleScene
                 imgFill.fillMethod = Image.FillMethod.Horizontal;
                 imgFill.fillOrigin = (int)Image.OriginHorizontal.Left;
                 imgFill.fillAmount = 0f;
-                imgFill.color = new Color(0.05f, 0.80f, 0.95f, 0.65f);
+                imgFill.color = new Color(0.06f, 0.82f, 0.95f, 0.75f);
                 sc.playerRows[i].btnFills[v] = imgFill;
 
                 Button btn = goBtn.AddComponent<Button>();
@@ -317,6 +317,7 @@ public class CreateSimpleScene
                 cb.colorMultiplier = 1f;
                 cb.fadeDuration = 0.08f;
                 btn.colors = cb;
+                sc.playerRows[i].buttons[v] = btn;
 
                 // Button Text (On Top of Fill)
                 GameObject goBtnTxt = new GameObject("Text");
