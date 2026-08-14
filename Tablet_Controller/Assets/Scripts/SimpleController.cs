@@ -17,7 +17,8 @@ public class SimpleController : MonoBehaviourPunCallbacks
     public Text statusHeader;
     public Text[] playerStatusTexts = new Text[4];
     public Image[] playerStatusBadges = new Image[4];
-    public GameObject[] playerControlContainers = new GameObject[4];
+    public GameObject[] playerPlayPauseBtns = new GameObject[4];
+    public GameObject[] playerStopBtns = new GameObject[4];
     public Text[] playerPlayPauseTexts = new Text[4];
 
     [System.Serializable]
@@ -194,9 +195,9 @@ public class SimpleController : MonoBehaviourPunCallbacks
                 {
                     string curStr = $"{Mathf.FloorToInt(curTime / 60):00}:{Mathf.FloorToInt(curTime % 60):00}";
                     string totStr = $"{Mathf.FloorToInt(totalTime / 60):00}:{Mathf.FloorToInt(totalTime % 60):00}";
-                    timeFormatted = $"\n<size=16><color=#67E8F9><b>{curStr} / {totStr}</b></color></size>";
+                    timeFormatted = $"\n<size=15><color=#67E8F9><b>{curStr} / {totStr}</b></color></size>";
                 }
-                playerStatusTexts[i].text = $"<b><size=52>{i + 1}</size></b>   {statusBadge}{timeFormatted}";
+                playerStatusTexts[i].text = $"<b><size=46>{i + 1}</size></b>  {statusBadge}{timeFormatted}";
             }
 
             if (playerStatusBadges[i] != null)
@@ -204,22 +205,29 @@ public class SimpleController : MonoBehaviourPunCallbacks
                 playerStatusBadges[i].color = online ? new Color(0.10f, 0.25f, 0.20f, 1f) : new Color(0.20f, 0.10f, 0.12f, 1f);
             }
 
-            // Play/Pause & Stop Controls visibility (ONLY APPEAR WHEN VIDEO IS ACTIVE/SELECTED)
+            // Play/Pause & Stop Controls inside Column 1
             bool showControls = online && (curActive >= 0);
-            if (playerControlContainers != null && i < playerControlContainers.Length && playerControlContainers[i] != null)
+            if (playerPlayPauseBtns != null && i < playerPlayPauseBtns.Length && playerPlayPauseBtns[i] != null)
             {
-                if (playerControlContainers[i].activeSelf != showControls)
+                if (playerPlayPauseBtns[i].activeSelf != showControls)
                 {
-                    playerControlContainers[i].SetActive(showControls);
+                    playerPlayPauseBtns[i].SetActive(showControls);
+                }
+            }
+            if (playerStopBtns != null && i < playerStopBtns.Length && playerStopBtns[i] != null)
+            {
+                if (playerStopBtns[i].activeSelf != showControls)
+                {
+                    playerStopBtns[i].SetActive(showControls);
                 }
             }
 
             if (playerPlayPauseTexts != null && i < playerPlayPauseTexts.Length && playerPlayPauseTexts[i] != null)
             {
-                playerPlayPauseTexts[i].text = playing ? "⏸" : "▶";
+                playerPlayPauseTexts[i].text = playing ? "PAUSE" : "PLAY";
             }
 
-            // Buttons: Only clickable if online! Active highlighting & Progressive Fill
+            // 5 Buttons: Fixed grid, never shift
             if (playerRows != null && i < playerRows.Length && playerRows[i] != null)
             {
                 for (int v = 0; v < 5; v++)
@@ -233,7 +241,6 @@ public class SimpleController : MonoBehaviourPunCallbacks
 
                     if (btn != null)
                     {
-                        // ONLY CLICKABLE IF ONLINE!
                         btn.interactable = online;
                     }
 

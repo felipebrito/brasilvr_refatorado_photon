@@ -57,11 +57,28 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         PhotonNetwork.KeepAliveInBackground = 60f;
         OVRManager.HMDMounted += OnHeadsetMounted;
         OVRManager.HMDUnmounted += OnHeadsetUnmounted;
+
+        if (vrVideoPlayer != null)
+        {
+            vrVideoPlayer.loop = false;
+            vrVideoPlayer.loopPointReached += OnVideoEndReached;
+        }
+
         ConfigurePhotonAndConnect();
+    }
+
+    private void OnVideoEndReached(Evereal.VRVideoPlayer.VRVideoPlayer player)
+    {
+        Debug.Log("[UserStatusSend] Video finished playing! Stopping and returning to standby environment.");
+        ReceiveStopCommand(userID);
     }
 
     private void OnApplicationQuit()
     {
+        if (vrVideoPlayer != null)
+        {
+            vrVideoPlayer.loopPointReached -= OnVideoEndReached;
+        }
         if (PhotonNetwork.IsConnected)
         {
             PhotonNetwork.Disconnect();
@@ -70,6 +87,10 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
 
     private void OnDestroy()
     {
+        if (vrVideoPlayer != null)
+        {
+            vrVideoPlayer.loopPointReached -= OnVideoEndReached;
+        }
         OVRManager.HMDMounted -= OnHeadsetMounted;
         OVRManager.HMDUnmounted -= OnHeadsetUnmounted;
     }
