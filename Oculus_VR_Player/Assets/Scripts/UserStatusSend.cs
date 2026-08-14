@@ -184,19 +184,6 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
             Debug.Log("Property updated: " + key + " = " + properties[key]);
         }
 
-        if (properties.ContainsKey("Video_" + currentUserId))
-        {
-            string newVideoUrl = (string)properties["Video_" + currentUserId];
-            Debug.Log("Matched Video for UserID " + currentUserId + ": " + newVideoUrl);
-            ReceiveSelectVideoCommand(currentUserId, newVideoUrl);
-        }
-        else if (properties.ContainsKey("GlobalVideo"))
-        {
-            string newVideoUrl = (string)properties["GlobalVideo"];
-            Debug.Log("Matched GlobalVideo: " + newVideoUrl);
-            ReceiveSelectVideoCommand(-1, newVideoUrl);
-        }
-
         if (properties.ContainsKey("Command_" + currentUserId))
         {
             string cmd = (string)properties["Command_" + currentUserId];
@@ -204,6 +191,37 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
             if (cmd == "pause") ReceivePauseCommand(currentUserId);
             else if (cmd == "play") ReceivePlayCommand(currentUserId);
             else if (cmd == "stop") ReceiveStopCommand(currentUserId);
+        }
+
+        if (properties.ContainsKey("Video_" + currentUserId))
+        {
+            string newVideoUrl = (string)properties["Video_" + currentUserId];
+            Debug.Log("Matched Video for UserID " + currentUserId + ": " + newVideoUrl);
+            if (!string.IsNullOrEmpty(newVideoUrl))
+            {
+                if (newVideoUrl == "stop" || newVideoUrl == "STOP")
+                {
+                    ReceiveStopCommand(currentUserId);
+                }
+                else if (newVideoUrl == "pause" || newVideoUrl == "PAUSE")
+                {
+                    ReceivePauseCommand(currentUserId);
+                }
+                else if (newVideoUrl == "play" || newVideoUrl == "PLAY")
+                {
+                    ReceivePlayCommand(currentUserId);
+                }
+                else
+                {
+                    ReceiveSelectVideoCommand(currentUserId, newVideoUrl);
+                }
+            }
+        }
+        else if (properties.ContainsKey("GlobalVideo"))
+        {
+            string newVideoUrl = (string)properties["GlobalVideo"];
+            Debug.Log("Matched GlobalVideo: " + newVideoUrl);
+            ReceiveSelectVideoCommand(-1, newVideoUrl);
         }
     }
 

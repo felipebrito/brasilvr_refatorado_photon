@@ -167,7 +167,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.Vortex.BrasilVR3
+    Android: com.Vortex.BrasilVR1
   buildNumber:
     Standalone: 0
     VisionOS: 0
