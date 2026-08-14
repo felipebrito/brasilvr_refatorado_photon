@@ -116,12 +116,12 @@ public class CreateSimpleScene
             hlg.childForceExpandHeight = true;
             hlg.spacing = 12;
 
-            // -------- COLUMN 1: NARROWER BADGE & SESSION CONTROLS --------
+            // -------- COLUMN 1: NARROW BADGE & LARGE SQUARE CONTROLS --------
             GameObject goBadgeFrame = new GameObject("BadgeFrame_" + (i + 1));
             goBadgeFrame.transform.SetParent(goRow.transform, false);
             LayoutElement leBadgeBox = goBadgeFrame.AddComponent<LayoutElement>();
-            leBadgeBox.minWidth = 230; // Compact width
-            leBadgeBox.preferredWidth = 230;
+            leBadgeBox.minWidth = 260;
+            leBadgeBox.preferredWidth = 260;
             leBadgeBox.flexibleWidth = 0;
             leBadgeBox.flexibleHeight = 1;
 
@@ -145,7 +145,7 @@ public class CreateSimpleScene
             hlgBadge.childControlHeight = true;
             hlgBadge.childForceExpandWidth = false;
             hlgBadge.childForceExpandHeight = true;
-            hlgBadge.spacing = 6;
+            hlgBadge.spacing = 8;
             hlgBadge.padding = new RectOffset(12, 8, 8, 8);
 
             // Left-aligned Text (Number 1, 2, 3, 4 + Status)
@@ -165,12 +165,12 @@ public class CreateSimpleScene
             txtBadge.lineSpacing = 1.15f;
             sc.playerStatusTexts[i] = txtBadge;
 
-            // Session Controls Container (PLAY/PAUSE & STOP) - Starts inactive and only appears when playing!
+            // Session Controls Container (LARGE SQUARE BUTTONS)
             GameObject goControls = new GameObject("SessionControls");
             goControls.transform.SetParent(goBadgeBox.transform, false);
             LayoutElement leControls = goControls.AddComponent<LayoutElement>();
-            leControls.minWidth = 105;
-            leControls.preferredWidth = 105;
+            leControls.minWidth = 148;
+            leControls.preferredWidth = 148;
             leControls.flexibleWidth = 0;
             leControls.flexibleHeight = 1;
 
@@ -179,14 +179,16 @@ public class CreateSimpleScene
             hlgControls.childControlHeight = true;
             hlgControls.childForceExpandWidth = true;
             hlgControls.childForceExpandHeight = true;
-            hlgControls.spacing = 6;
+            hlgControls.spacing = 8;
             sc.playerControlContainers[i] = goControls;
-            goControls.SetActive(false); // Hidden until a video is started!
+            goControls.SetActive(false); // Only appears when video is active!
 
-            // Play/Pause Button (Large Touch Area)
+            // Play/Pause Button (Large Square)
             GameObject goPlayBtn = new GameObject("Btn_PlayPause");
             goPlayBtn.transform.SetParent(goControls.transform, false);
             LayoutElement lePlay = goPlayBtn.AddComponent<LayoutElement>();
+            lePlay.minWidth = 68;
+            lePlay.preferredWidth = 68;
             lePlay.flexibleWidth = 1;
             lePlay.flexibleHeight = 1;
 
@@ -211,7 +213,7 @@ public class CreateSimpleScene
             Text txtPlay = goPlayTxt.AddComponent<Text>();
             txtPlay.text = "▶";
             txtPlay.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtPlay.fontSize = 32;
+            txtPlay.fontSize = 38; // Large clear symbol!
             txtPlay.fontStyle = FontStyle.Bold;
             txtPlay.color = Color.white;
             txtPlay.alignment = TextAnchor.MiddleCenter;
@@ -223,10 +225,12 @@ public class CreateSimpleScene
             proxyPlay.action = ButtonProxy.ActionType.TogglePlayPause;
             UnityEditor.Events.UnityEventTools.AddPersistentListener(btnPlay.onClick, proxyPlay.OnClick);
 
-            // Stop Button (Large Touch Area)
+            // Stop Button (Large Square)
             GameObject goStopBtn = new GameObject("Btn_Stop");
             goStopBtn.transform.SetParent(goControls.transform, false);
             LayoutElement leStop = goStopBtn.AddComponent<LayoutElement>();
+            leStop.minWidth = 68;
+            leStop.preferredWidth = 68;
             leStop.flexibleWidth = 1;
             leStop.flexibleHeight = 1;
 
@@ -251,7 +255,7 @@ public class CreateSimpleScene
             Text txtStop = goStopTxt.AddComponent<Text>();
             txtStop.text = "⏹";
             txtStop.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtStop.fontSize = 28;
+            txtStop.fontSize = 34; // Large clear symbol!
             txtStop.fontStyle = FontStyle.Bold;
             txtStop.color = Color.white;
             txtStop.alignment = TextAnchor.MiddleCenter;

@@ -349,6 +349,8 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
         Debug.Log("Headset unmounted.");
     }
 
+    private bool isExplicitlyPaused = false;
+
     void Update()
     {
         try 
@@ -365,20 +367,21 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
             }
 
             bool isPlaying = vrVideoPlayer.isPlaying;
+            bool showSphere = isPlaying || isExplicitlyPaused;
 
             if (aviso != null)
             {
-                aviso.SetActive(!isPlaying);
+                aviso.SetActive(!showSphere);
             }
 
             if (ambiente != null)
             {
-                ambiente.SetActive(!isPlaying);
+                ambiente.SetActive(!showSphere);
             }
 
             if (sphere != null)
             {
-                sphere.SetActive(isPlaying);
+                sphere.SetActive(showSphere);
             }
         }
         catch (System.Exception ex)
@@ -390,13 +393,13 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReceivePlayCommand(int targetUserID)
     {
+        Debug.Log($"[UserStatusSend] ReceivePlayCommand - target: {targetUserID}, my userID: {userID}");
         if (targetUserID == userID || targetUserID == -1)
         {
-            vrVideoPlayer.Play();
-
-            if (sphere != null)
+            isExplicitlyPaused = false;
+            if (vrVideoPlayer != null)
             {
-                sphere.SetActive(vrVideoPlayer.isPlaying);
+                vrVideoPlayer.Play();
             }
         }
     }
@@ -422,8 +425,10 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReceivePauseCommand(int targetUserID)
     {
+        Debug.Log($"[UserStatusSend] ReceivePauseCommand - target: {targetUserID}, my userID: {userID}");
         if (targetUserID == userID || targetUserID == -1)
         {
+            isExplicitlyPaused = true;
             if (vrVideoPlayer != null)
             {
                 vrVideoPlayer.Pause();
@@ -434,15 +439,13 @@ public class UserStatusSend : MonoBehaviourPunCallbacks
     [PunRPC]
     public void ReceiveStopCommand(int targetUserID)
     {
+        Debug.Log($"[UserStatusSend] ReceiveStopCommand - target: {targetUserID}, my userID: {userID}");
         if (targetUserID == userID || targetUserID == -1)
         {
+            isExplicitlyPaused = false;
             if (vrVideoPlayer != null)
             {
                 vrVideoPlayer.Stop();
-            }
-            if (sphere != null)
-            {
-                sphere.SetActive(false);
             }
         }
     }
