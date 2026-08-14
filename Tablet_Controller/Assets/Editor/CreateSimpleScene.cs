@@ -61,8 +61,8 @@ public class CreateSimpleScene
         GameObject goHeaderFrame = new GameObject("HeaderFrame");
         goHeaderFrame.transform.SetParent(goRoot.transform, false);
         LayoutElement leHeader = goHeaderFrame.AddComponent<LayoutElement>();
-        leHeader.minHeight = 90;
-        leHeader.preferredHeight = 90;
+        leHeader.minHeight = 85;
+        leHeader.preferredHeight = 85;
         leHeader.flexibleHeight = 0;
         leHeader.flexibleWidth = 1;
 
@@ -116,12 +116,12 @@ public class CreateSimpleScene
             hlg.childForceExpandHeight = true;
             hlg.spacing = 12;
 
-            // -------- COLUMN 1: NARROW BADGE & LARGE SQUARE CONTROLS --------
+            // -------- 1. DEDICATED SLOT BADGE (140px) --------
             GameObject goBadgeFrame = new GameObject("BadgeFrame_" + (i + 1));
             goBadgeFrame.transform.SetParent(goRow.transform, false);
             LayoutElement leBadgeBox = goBadgeFrame.AddComponent<LayoutElement>();
-            leBadgeBox.minWidth = 260;
-            leBadgeBox.preferredWidth = 260;
+            leBadgeBox.minWidth = 140;
+            leBadgeBox.preferredWidth = 140;
             leBadgeBox.flexibleWidth = 0;
             leBadgeBox.flexibleHeight = 1;
 
@@ -140,37 +140,30 @@ public class CreateSimpleScene
             imgBadge.color = new Color(0.12f, 0.18f, 0.30f, 1f);
             sc.playerStatusBadges[i] = imgBadge;
 
-            HorizontalLayoutGroup hlgBadge = goBadgeBox.AddComponent<HorizontalLayoutGroup>();
-            hlgBadge.childControlWidth = true;
-            hlgBadge.childControlHeight = true;
-            hlgBadge.childForceExpandWidth = false;
-            hlgBadge.childForceExpandHeight = true;
-            hlgBadge.spacing = 8;
-            hlgBadge.padding = new RectOffset(12, 8, 8, 8);
-
-            // Left-aligned Text (Number 1, 2, 3, 4 + Status)
             GameObject goBadgeTxt = new GameObject("StatusText");
             goBadgeTxt.transform.SetParent(goBadgeBox.transform, false);
-            LayoutElement leTxt = goBadgeTxt.AddComponent<LayoutElement>();
-            leTxt.flexibleWidth = 1;
-            leTxt.flexibleHeight = 1;
+            RectTransform rtBadgeTxt = goBadgeTxt.AddComponent<RectTransform>();
+            rtBadgeTxt.anchorMin = Vector2.zero;
+            rtBadgeTxt.anchorMax = Vector2.one;
+            rtBadgeTxt.offsetMin = new Vector2(6, 6);
+            rtBadgeTxt.offsetMax = new Vector2(-6, -6);
 
             Text txtBadge = goBadgeTxt.AddComponent<Text>();
-            txtBadge.text = $"<b><size=52>{i + 1}</size></b>   <color=#EF4444><b>○ OFF</b></color>";
+            txtBadge.text = $"<b><size=52>{i + 1}</size></b>\n<size=20><color=#EF4444><b>○ OFF</b></color></size>";
             txtBadge.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             txtBadge.fontSize = 20;
             txtBadge.color = Color.white;
-            txtBadge.alignment = TextAnchor.MiddleLeft;
+            txtBadge.alignment = TextAnchor.MiddleCenter;
             txtBadge.supportRichText = true;
-            txtBadge.lineSpacing = 1.15f;
+            txtBadge.lineSpacing = 1.1f;
             sc.playerStatusTexts[i] = txtBadge;
 
-            // Session Controls Container (LARGE SQUARE BUTTONS)
-            GameObject goControls = new GameObject("SessionControls");
-            goControls.transform.SetParent(goBadgeBox.transform, false);
+            // -------- 2. DEDICATED CONTROLS COLUMN (190px, 2 LARGE 1:1 SQUARE BUTTONS) --------
+            GameObject goControls = new GameObject("SessionControls_" + (i + 1));
+            goControls.transform.SetParent(goRow.transform, false);
             LayoutElement leControls = goControls.AddComponent<LayoutElement>();
-            leControls.minWidth = 148;
-            leControls.preferredWidth = 148;
+            leControls.minWidth = 190;
+            leControls.preferredWidth = 190;
             leControls.flexibleWidth = 0;
             leControls.flexibleHeight = 1;
 
@@ -179,27 +172,36 @@ public class CreateSimpleScene
             hlgControls.childControlHeight = true;
             hlgControls.childForceExpandWidth = true;
             hlgControls.childForceExpandHeight = true;
-            hlgControls.spacing = 8;
+            hlgControls.spacing = 10;
             sc.playerControlContainers[i] = goControls;
-            goControls.SetActive(false); // Only appears when video is active!
+            goControls.SetActive(false); // Initially hidden!
 
-            // Play/Pause Button (Large Square)
+            // Play/Pause Button Frame (1:1 Aspect Ratio)
+            GameObject goPlayFrame = new GameObject("PlayFrame");
+            goPlayFrame.transform.SetParent(goControls.transform, false);
+            LayoutElement lePlayFrame = goPlayFrame.AddComponent<LayoutElement>();
+            lePlayFrame.flexibleWidth = 1;
+            lePlayFrame.flexibleHeight = 1;
+
+            Image imgPlayFrame = goPlayFrame.AddComponent<Image>();
+            imgPlayFrame.color = new Color(0.15f, 0.85f, 0.50f, 0.8f); // Bright emerald frame
+
             GameObject goPlayBtn = new GameObject("Btn_PlayPause");
-            goPlayBtn.transform.SetParent(goControls.transform, false);
-            LayoutElement lePlay = goPlayBtn.AddComponent<LayoutElement>();
-            lePlay.minWidth = 68;
-            lePlay.preferredWidth = 68;
-            lePlay.flexibleWidth = 1;
-            lePlay.flexibleHeight = 1;
+            goPlayBtn.transform.SetParent(goPlayFrame.transform, false);
+            RectTransform rtPlayBtn = goPlayBtn.AddComponent<RectTransform>();
+            rtPlayBtn.anchorMin = Vector2.zero;
+            rtPlayBtn.anchorMax = Vector2.one;
+            rtPlayBtn.offsetMin = new Vector2(3, 3);
+            rtPlayBtn.offsetMax = new Vector2(-3, -3);
 
             Image imgPlay = goPlayBtn.AddComponent<Image>();
-            imgPlay.color = new Color(0.05f, 0.65f, 0.40f, 1f);
+            imgPlay.color = new Color(0.05f, 0.65f, 0.38f, 1f);
 
             Button btnPlay = goPlayBtn.AddComponent<Button>();
             ColorBlock cbPlay = btnPlay.colors;
-            cbPlay.normalColor = new Color(0.05f, 0.65f, 0.40f, 1f);
-            cbPlay.highlightedColor = new Color(0.10f, 0.80f, 0.50f, 1f);
-            cbPlay.pressedColor = new Color(0.15f, 0.95f, 0.60f, 1f);
+            cbPlay.normalColor = new Color(0.05f, 0.65f, 0.38f, 1f);
+            cbPlay.highlightedColor = new Color(0.10f, 0.85f, 0.50f, 1f);
+            cbPlay.pressedColor = new Color(0.20f, 1f, 0.60f, 1f);
             btnPlay.colors = cbPlay;
 
             GameObject goPlayTxt = new GameObject("Text");
@@ -213,7 +215,7 @@ public class CreateSimpleScene
             Text txtPlay = goPlayTxt.AddComponent<Text>();
             txtPlay.text = "▶";
             txtPlay.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtPlay.fontSize = 38; // Large clear symbol!
+            txtPlay.fontSize = 44; // Huge crisp icon!
             txtPlay.fontStyle = FontStyle.Bold;
             txtPlay.color = Color.white;
             txtPlay.alignment = TextAnchor.MiddleCenter;
@@ -225,14 +227,23 @@ public class CreateSimpleScene
             proxyPlay.action = ButtonProxy.ActionType.TogglePlayPause;
             UnityEditor.Events.UnityEventTools.AddPersistentListener(btnPlay.onClick, proxyPlay.OnClick);
 
-            // Stop Button (Large Square)
+            // Stop Button Frame (1:1 Aspect Ratio)
+            GameObject goStopFrame = new GameObject("StopFrame");
+            goStopFrame.transform.SetParent(goControls.transform, false);
+            LayoutElement leStopFrame = goStopFrame.AddComponent<LayoutElement>();
+            leStopFrame.flexibleWidth = 1;
+            leStopFrame.flexibleHeight = 1;
+
+            Image imgStopFrame = goStopFrame.AddComponent<Image>();
+            imgStopFrame.color = new Color(0.95f, 0.25f, 0.30f, 0.8f); // Bright red frame
+
             GameObject goStopBtn = new GameObject("Btn_Stop");
-            goStopBtn.transform.SetParent(goControls.transform, false);
-            LayoutElement leStop = goStopBtn.AddComponent<LayoutElement>();
-            leStop.minWidth = 68;
-            leStop.preferredWidth = 68;
-            leStop.flexibleWidth = 1;
-            leStop.flexibleHeight = 1;
+            goStopBtn.transform.SetParent(goStopFrame.transform, false);
+            RectTransform rtStopBtn = goStopBtn.AddComponent<RectTransform>();
+            rtStopBtn.anchorMin = Vector2.zero;
+            rtStopBtn.anchorMax = Vector2.one;
+            rtStopBtn.offsetMin = new Vector2(3, 3);
+            rtStopBtn.offsetMax = new Vector2(-3, -3);
 
             Image imgStop = goStopBtn.AddComponent<Image>();
             imgStop.color = new Color(0.85f, 0.18f, 0.22f, 1f);
@@ -240,8 +251,8 @@ public class CreateSimpleScene
             Button btnStop = goStopBtn.AddComponent<Button>();
             ColorBlock cbStop = btnStop.colors;
             cbStop.normalColor = new Color(0.85f, 0.18f, 0.22f, 1f);
-            cbStop.highlightedColor = new Color(0.95f, 0.25f, 0.30f, 1f);
-            cbStop.pressedColor = new Color(1f, 0.40f, 0.45f, 1f);
+            cbStop.highlightedColor = new Color(0.98f, 0.28f, 0.32f, 1f);
+            cbStop.pressedColor = new Color(1f, 0.45f, 0.50f, 1f);
             btnStop.colors = cbStop;
 
             GameObject goStopTxt = new GameObject("Text");
@@ -255,7 +266,7 @@ public class CreateSimpleScene
             Text txtStop = goStopTxt.AddComponent<Text>();
             txtStop.text = "⏹";
             txtStop.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            txtStop.fontSize = 34; // Large clear symbol!
+            txtStop.fontSize = 40; // Huge crisp icon!
             txtStop.fontStyle = FontStyle.Bold;
             txtStop.color = Color.white;
             txtStop.alignment = TextAnchor.MiddleCenter;
@@ -266,7 +277,7 @@ public class CreateSimpleScene
             proxyStop.action = ButtonProxy.ActionType.StopVideo;
             UnityEditor.Events.UnityEventTools.AddPersistentListener(btnStop.onClick, proxyStop.OnClick);
 
-            // -------- 5 VIDEO BUTTONS WITH DYNAMIC PROGRESSIVE FILL --------
+            // -------- 3. 5 VIDEO BUTTONS WITH DYNAMIC PROGRESSIVE FILL --------
             sc.playerRows[i] = new SimpleController.RowElements();
 
             for (int v = 0; v < videoTitles.Length; v++)
